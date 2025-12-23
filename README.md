@@ -55,12 +55,12 @@ And you may create flexible scenarios for the maintaining of PRs' with branch na
 |-------|----------|---------|-------------|
 | `config_path` | No* | | Path to configuration file (relative to workspace) |
 | `config` | No* | | Inline YAML configuration |
-| `verbosity` | No | `normal` | Verbosity level: `quiet`, `normal`, `verbose`, `very-verbose`, `debug` |
 | `env_vars` | No | | Environment variable names to pass to container (newline or space separated) |
 | `new_branch_name` | No | | Name of new branch to create for changes. If empty - stay on current branch |
 | `target_branch_name` | No | | Target branch for pull request. If empty - use current branch |
 | `user_name` | No | `GitHub Action` | Git user name for commits |
 | `user_email` | No | `action@github.com` | Git user email for commits |
+| `verbosity` | No | `normal` | Verbosity level: `quiet`, `normal`, `verbose`, `very-verbose`, `debug` |
 
 \* Either `config_path` or `config` must be provided.
 
