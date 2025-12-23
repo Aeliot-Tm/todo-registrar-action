@@ -21,31 +21,30 @@ of duplicated tickets, and you don't need in 'supporting database'. All saved in
 
 ## Usage
 
-Create a workflow file in your `.github/workflows/` directory with the following contents:
+Create a workflow file in your `.github/workflows/todo-registrar.yaml` directory with the following contents:
 ```yaml
 name: TODO registrar
 
 on:
-    push:
-        branches: [ "main" ]
+  push:
+    branches: [ "main" ]
 
 permissions:
-    contents: write
-    issues: write
-    pull-requests: write
+  contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Run action from branch commiting-flow
-              uses: Aeliot-Tm/todo-registrar-action@1.1.0
-              with:
-                  config_path: scripts/todo-registrar/config.php
-                  new_branch_name: todo-registrar
-                  target_branch_name: main # or master depends on your repository
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: TODO registrar
+        uses: Aeliot-Tm/todo-registrar-action@1.1.0
+        with:
+          config_path: scripts/todo-registrar/config.php
+          new_branch_name: todo-registrar
+          target_branch_name: main # or master depends on your repository
 ```
 
 And you may create flexible scenarios for the maintaining of PRs' with branch names.
