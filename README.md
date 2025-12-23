@@ -1,5 +1,8 @@
 ![logo.svg](docs/logo.svg)
 
+[![GitHub Release](https://img.shields.io/github/v/release/Aeliot-Tm/todo-registrar-action?label=Release)](https://packagist.org/packages/aeliot/todo-registrar-action)
+[![GitHub License](https://img.shields.io/github/license/Aeliot-Tm/todo-registrar-action?label=License)](LICENSE)
+
 # TODO Registrar Action
 
 GitHub Action for finding TODO comments in code and automatically creating issues in your issue tracker.
