@@ -23,6 +23,22 @@ inputs:
     description: 'Environment variable names to pass to container (newline or space separated)'
     required: false
     default: ''
+  new_branch_name:
+    description: 'Name of new branch to create for changes. If empty - stay on current branch'
+    required: false
+    default: ''
+  target_branch_name:
+    description: 'Target branch for pull request. If empty - use current branch'
+    required: false
+    default: ''
+  user_name:
+    description: 'Git user name for commits'
+    required: false
+    default: 'GitHub Action'
+  user_email:
+    description: 'Git user email for commits'
+    required: false
+    default: 'action@github.com'
 
 runs:
   using: 'composite'
@@ -104,3 +120,64 @@ runs:
           ghcr.io/aeliot-tm/todo-registrar:v2.1.0 \
           ${{ steps.verbosity.outputs.flag }} \
           --config=STDIN
+
+    - name: Checkout new branch
+      if: inputs.new_branch_name != ''
+      shell: bash
+      run: git checkout -b ${{ inputs.new_branch_name }} 1> /dev/null
+
+    - name: Commit and push changes
+      id: commit
+      shell: bash
+      run: |
+        git config --local user.email "${{ inputs.user_email }}"
+        git config --local user.name "${{ inputs.user_name }}"
+        git add -A .
+        
+        if git commit -m "TODO-REGISTRAR: automated registering of new TODOs"; then
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          git push origin HEAD
+        else
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "Nothing to commit" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Determine branches for PR
+      id: branches
+      if: steps.commit.outputs.has_changes == 'true'
+      shell: bash
+      run: |
+        NEW_BRANCH="${{ inputs.new_branch_name }}"
+        TARGET_BRANCH="${{ inputs.target_branch_name }}"
+        
+        # Get current branch if not specified
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        
+        if [[ -z "$NEW_BRANCH" ]]; then
+          NEW_BRANCH="$CURRENT_BRANCH"
+        fi
+        
+        if [[ -z "$TARGET_BRANCH" ]]; then
+          TARGET_BRANCH="$CURRENT_BRANCH"
+        fi
+        
+        echo "new_branch=$NEW_BRANCH" >> $GITHUB_OUTPUT
+        echo "target_branch=$TARGET_BRANCH" >> $GITHUB_OUTPUT
+        
+        if [[ "$NEW_BRANCH" != "$TARGET_BRANCH" ]]; then
+          echo "should_create_pr=true" >> $GITHUB_OUTPUT
+        else
+          echo "should_create_pr=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create pull request
+      if: steps.branches.outputs.should_create_pr == 'true'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        gh pr create \
+          -B ${{ steps.branches.outputs.target_branch }} \
+          -H ${{ steps.branches.outputs.new_branch }} \
+          --title '[TODO Registrar] automated registering of new TODOs' \
+          --body 'Created by Github action'
