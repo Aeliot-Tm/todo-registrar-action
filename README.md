@@ -13,6 +13,40 @@ This action is a wrapper around **[TODO registrar](https://github.com/Aeliot-Tm/
 - Injects issue IDs back into TODO comments to prevent duplicates.
 - Supports inline configuration for flexible issue customization.
 
+Action adds numbers of ticket inside TODOs in the code and makes commit. It permits to avoid creation
+of duplicated tickets, and you don't need in 'supporting database'. All saved in your repository.
+
+## Usage
+
+Create a workflow file in your `.github/workflows/` directory with the following contents:
+```yaml
+name: TODO registrar
+
+on:
+    push:
+        branches: [ "main" ]
+
+permissions:
+    contents: write
+    issues: write
+    pull-requests: write
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Run action from branch commiting-flow
+              uses: Aeliot-Tm/todo-registrar-action@1.1.0
+              with:
+                  config_path: scripts/todo-registrar/config.php
+                  new_branch_name: todo-registrar
+                  target_branch_name: main # or master depends on your repository
+```
+
+And you may create flexible scenarios for the maintaining of PRs' with branch names.
+
 ## Inputs
 
 | Input | Required | Default | Description |
@@ -28,9 +62,7 @@ This action is a wrapper around **[TODO registrar](https://github.com/Aeliot-Tm/
 
 \* Either `config_path` or `config` must be provided.
 
-## Usage
-
-Create a workflow file in your `.github/workflows/` directory with the following contents:
+## Examples
 
 ### With configuration file
 
