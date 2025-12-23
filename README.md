@@ -13,6 +13,40 @@ This action is a wrapper around **[TODO registrar](https://github.com/Aeliot-Tm/
 - Injects issue IDs back into TODO comments to prevent duplicates.
 - Supports inline configuration for flexible issue customization.
 
+Action adds numbers of ticket inside TODOs in the code and makes commit. It permits to avoid creation
+of duplicated tickets, and you don't need in 'supporting database'. All saved in your repository.
+
+## Usage
+
+Create a workflow file in your `.github/workflows/` directory with the following contents:
+```yaml
+name: TODO registrar
+
+on:
+    push:
+        branches: [ "main" ]
+
+permissions:
+    contents: write
+    issues: write
+    pull-requests: write
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Run action from branch commiting-flow
+              uses: Aeliot-Tm/todo-registrar-action@1.1.0
+              with:
+                  config_path: scripts/todo-registrar/config.php
+                  new_branch_name: todo-registrar
+                  target_branch_name: main # or master depends on your repository
+```
+
+And you may create flexible scenarios for the maintaining of PRs' with branch names.
+
 ## Inputs
 
 | Input | Required | Default | Description |
@@ -21,10 +55,14 @@ This action is a wrapper around **[TODO registrar](https://github.com/Aeliot-Tm/
 | `config` | No* | | Inline YAML configuration |
 | `verbosity` | No | `normal` | Verbosity level: `quiet`, `normal`, `verbose`, `very-verbose`, `debug` |
 | `env_vars` | No | | Environment variable names to pass to container (newline or space separated) |
+| `new_branch_name` | No | | Name of new branch to create for changes. If empty - stay on current branch |
+| `target_branch_name` | No | | Target branch for pull request. If empty - use current branch |
+| `user_name` | No | `GitHub Action` | Git user name for commits |
+| `user_email` | No | `action@github.com` | Git user email for commits |
 
 \* Either `config_path` or `config` must be provided.
 
-## Usage
+## Examples
 
 ### With configuration file
 
@@ -106,6 +144,37 @@ registrar:
             personalAccessToken: '%env(GITHUB_TOKEN)%'
             owner: '%env(GITHUB_OWNER)%'
             repository: '%env(GITHUB_REPO)%'
+```
+
+### With automatic branch and pull request
+
+The action can automatically create a new branch, commit changes, push, and create a pull request:
+
+```yaml
+- uses: Aeliot-Tm/todo-registrar-action@v1
+  with:
+    config_path: .todo-registrar.yaml
+    new_branch_name: todo-registrar-${{ github.run_id }}
+    target_branch_name: main
+```
+
+**Git workflow behavior:**
+
+- If `new_branch_name` is not provided, changes are committed to the current branch
+- If `target_branch_name` is not provided, it defaults to the current branch
+- Pull request is created only when `new_branch_name` differs from `target_branch_name`
+- If there are no changes to commit, push and PR creation are skipped
+
+**Custom git user configuration:**
+
+```yaml
+- uses: Aeliot-Tm/todo-registrar-action@v1
+  with:
+    config_path: .todo-registrar.yaml
+    new_branch_name: todo-registrar-${{ github.run_id }}
+    target_branch_name: main
+    user_name: 'My Bot'
+    user_email: 'bot@example.com'
 ```
 
 ## Configuration
