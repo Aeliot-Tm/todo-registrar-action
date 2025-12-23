@@ -1,0 +1,106 @@
+name: 'TODO Registrar'
+description: 'Find TODO comments in code and create issues in issue tracker using todo-registrar'
+author: 'Aeliot-Tm'
+
+branding:
+  icon: 'check-square'
+  color: 'blue'
+
+inputs:
+  verbosity:
+    description: 'Verbosity level: quiet, normal, verbose, very-verbose, debug'
+    required: false
+    default: 'normal'
+  config_path:
+    description: 'Path to configuration file (relative to workspace)'
+    required: false
+    default: ''
+  config:
+    description: 'Inline YAML configuration (used when config_path is not set)'
+    required: false
+    default: ''
+  env_vars:
+    description: 'Environment variable names to pass to container (newline or space separated)'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate inputs
+      shell: bash
+      run: |
+        if [[ -z "${{ inputs.config_path }}" && -z "${{ inputs.config }}" ]]; then
+          echo "::error::Either 'config_path' or 'config' input must be provided"
+          exit 1
+        fi
+
+    - name: Map verbosity to flag
+      id: verbosity
+      shell: bash
+      run: |
+        VERBOSITY="${{ inputs.verbosity }}"
+        VERBOSITY="${VERBOSITY:-normal}"
+        
+        case "$VERBOSITY" in
+          quiet)
+            echo "flag=-q" >> $GITHUB_OUTPUT
+            ;;
+          normal)
+            echo "flag=" >> $GITHUB_OUTPUT
+            ;;
+          verbose)
+            echo "flag=-v" >> $GITHUB_OUTPUT
+            ;;
+          very-verbose)
+            echo "flag=-vv" >> $GITHUB_OUTPUT
+            ;;
+          debug)
+            echo "flag=-vvv" >> $GITHUB_OUTPUT
+            ;;
+          *)
+            echo "::error::Invalid verbosity level: $VERBOSITY. Valid values: quiet, normal, verbose, very-verbose, debug"
+            exit 1
+            ;;
+        esac
+
+    - name: Build environment flags
+      id: env_flags
+      shell: bash
+      run: |
+        ENV_FLAGS=""
+        ENV_VARS="${{ inputs.env_vars }}"
+        
+        if [[ -n "$ENV_VARS" ]]; then
+          # Replace newlines with spaces and split
+          for VAR_NAME in $ENV_VARS; do
+            # Skip empty entries
+            [[ -z "$VAR_NAME" ]] && continue
+            # Add -e flag for each variable
+            ENV_FLAGS="$ENV_FLAGS -e $VAR_NAME"
+          done
+        fi
+        
+        echo "flags=$ENV_FLAGS" >> $GITHUB_OUTPUT
+
+    - name: Run TODO Registrar with config file
+      if: inputs.config_path != ''
+      shell: bash
+      run: |
+        docker run --rm \
+          -v "${{ github.workspace }}:/code" \
+          ${{ steps.env_flags.outputs.flags }} \
+          ghcr.io/aeliot-tm/todo-registrar:v2.1.0 \
+          ${{ steps.verbosity.outputs.flag }} \
+          --config="/code/${{ inputs.config_path }}"
+
+    - name: Run TODO Registrar with inline config
+      if: inputs.config_path == '' && inputs.config != ''
+      shell: bash
+      run: |
+        echo '${{ inputs.config }}' | docker run --rm -i \
+          -v "${{ github.workspace }}:/code" \
+          ${{ steps.env_flags.outputs.flags }} \
+          ghcr.io/aeliot-tm/todo-registrar:v2.1.0 \
+          ${{ steps.verbosity.outputs.flag }} \
+          --config=STDIN
