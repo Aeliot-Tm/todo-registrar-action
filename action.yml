@@ -10,7 +10,7 @@ inputs:
   check_opened:
     description: 'Check for open pull requests before running. If open PRs exist, skip processing'
     required: false
-    default: 'false'
+    default: 'true'
   config:
     description: 'Inline YAML configuration (used when config_path is not set)'
     required: false

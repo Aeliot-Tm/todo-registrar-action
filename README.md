@@ -42,7 +42,6 @@ jobs:
       - name: TODO registrar
         uses: Aeliot-Tm/todo-registrar-action@1.1.0
         with:
-          check_opened: true
           new_branch_name: todo-registrar
 ```
 
@@ -50,7 +49,7 @@ jobs:
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `check_opened` | No | | Check if exists opened PR from new branch to target or not. Processing skipped if exists. Default: false |
+| `check_opened` | No | | Check if exists opened PR from new branch to target or not. Processing skipped if exists. Default: true |
 | `config` | No* | | Inline YAML configuration |
 | `config_path` | No* | | Path to configuration file (relative to workspace) |
 | `env_vars` | No | | Environment variable names to pass to container (newline or space separated) |
@@ -69,6 +68,7 @@ but changes will be pushed.
 ### Option check_opened
 
 Option `check_opened` is important to avoid creation of duplicated tickets. It is strongly recommended to set `true` to it.
+Nevertheless, you may switch it off and use your approach to handle it.
 
 ## Examples
 
