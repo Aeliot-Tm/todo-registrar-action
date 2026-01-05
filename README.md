@@ -39,8 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: TODO registrar
-        uses: Aeliot-Tm/todo-registrar-action@1.1.0
+      - uses: Aeliot-Tm/todo-registrar-action@1.1.0
         with:
           new_branch_name: todo-registrar
 ```
