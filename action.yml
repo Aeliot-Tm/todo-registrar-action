@@ -11,6 +11,10 @@ inputs:
     description: 'Verbosity level: quiet, normal, verbose, very-verbose, debug'
     required: false
     default: 'normal'
+  check_opened:
+    description: 'Check for open pull requests before running. If open PRs exist, skip processing'
+    required: false
+    default: 'false'
   config_path:
     description: 'Path to configuration file (relative to workspace)'
     required: false
@@ -57,7 +61,7 @@ runs:
       run: |
         VERBOSITY="${{ inputs.verbosity }}"
         VERBOSITY="${VERBOSITY:-normal}"
-        
+
         case "$VERBOSITY" in
           quiet)
             echo "flag=-q" >> $GITHUB_OUTPUT
@@ -86,7 +90,7 @@ runs:
       run: |
         ENV_FLAGS=""
         ENV_VARS="${{ inputs.env_vars }}"
-        
+
         if [[ -n "$ENV_VARS" ]]; then
           # Replace newlines with spaces and split
           for VAR_NAME in $ENV_VARS; do
@@ -96,22 +100,63 @@ runs:
             ENV_FLAGS="$ENV_FLAGS -e $VAR_NAME"
           done
         fi
-        
+
         echo "flags=$ENV_FLAGS" >> $GITHUB_OUTPUT
 
-    - name: Run TODO Registrar with config file
-      if: inputs.config_path != ''
+    - name: Determine branches for PR
+      id: branches
       shell: bash
       run: |
-        docker run --rm \
-          -v "${{ github.workspace }}:/code" \
-          ${{ steps.env_flags.outputs.flags }} \
-          ghcr.io/aeliot-tm/todo-registrar:v2.1.0 \
-          ${{ steps.verbosity.outputs.flag }} \
-          --config="/code/${{ inputs.config_path }}"
+        NEW_BRANCH="${{ inputs.new_branch_name }}"
+        TARGET_BRANCH="${{ inputs.target_branch_name }}"
+        # Get current branch if not specified
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        if [[ -z "$NEW_BRANCH" ]]; then
+          NEW_BRANCH="$CURRENT_BRANCH"
+        fi
+        if [[ -z "$TARGET_BRANCH" ]]; then
+          TARGET_BRANCH="$CURRENT_BRANCH"
+        fi
+        echo "current_branch=$CURRENT_BRANCH" >> $GITHUB_OUTPUT
+        echo "new_branch=$NEW_BRANCH" >> $GITHUB_OUTPUT
+        echo "target_branch=$TARGET_BRANCH" >> $GITHUB_OUTPUT
+        if [[ "$NEW_BRANCH" != "$TARGET_BRANCH" ]]; then
+          echo "should_create_pr=true" >> $GITHUB_OUTPUT
+        else
+          echo "should_create_pr=false" >> $GITHUB_OUTPUT
+        fi
 
-    - name: Run TODO Registrar with inline config
-      if: inputs.config_path == '' && inputs.config != ''
+    - name: Check for open pull requests
+      id: check_prs
+      if: inputs.check_opened == 'true' && steps.branches.outputs.should_create_pr == 'true'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        OPEN_PRS=$(gh pr list --state open \
+          --head "${{ steps.branches.outputs.new_branch }}" \
+          --base "${{ steps.branches.outputs.target_branch }}" \
+          --json number --jq length)
+        if [[ "$OPEN_PRS" -gt 0 ]]; then
+          echo "skip_processing=true" >> $GITHUB_OUTPUT
+          echo "::notice::Found $OPEN_PRS open PR(s) from '${{ steps.branches.outputs.new_branch }}' to '${{ steps.branches.outputs.target_branch }}'. Skipping processing."
+        else
+          echo "skip_processing=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Compose config path
+      id: config
+      if: steps.check_prs.outputs.skip_processing != 'true'
+      shell: bash
+      run: |
+        if [[ -n "${{ inputs.config_path }}" ]]; then
+          echo "path=/code/${{ inputs.config_path }}" >> $GITHUB_OUTPUT
+        else
+          echo "path=STDIN" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Run TODO Registrar
+      if: steps.check_prs.outputs.skip_processing != 'true'
       shell: bash
       run: |
         echo '${{ inputs.config }}' | docker run --rm -i \
@@ -119,21 +164,22 @@ runs:
           ${{ steps.env_flags.outputs.flags }} \
           ghcr.io/aeliot-tm/todo-registrar:v2.1.0 \
           ${{ steps.verbosity.outputs.flag }} \
-          --config=STDIN
+          --config="${{ steps.config.outputs.path }}"
 
     - name: Checkout new branch
-      if: inputs.new_branch_name != ''
+      if: steps.check_prs.outputs.skip_processing != 'true' && steps.branches.outputs.new_branch != steps.branches.outputs.current_branch
       shell: bash
-      run: git checkout -b ${{ inputs.new_branch_name }} 1> /dev/null
+      run: git checkout -b ${{ steps.branches.outputs.new_branch }} 1> /dev/null
 
     - name: Commit and push changes
       id: commit
+      if: steps.check_prs.outputs.skip_processing != 'true'
       shell: bash
       run: |
         git config --local user.email "${{ inputs.user_email }}"
         git config --local user.name "${{ inputs.user_name }}"
         git add -A .
-        
+
         if git commit -m "TODO-REGISTRAR: automated registering of new TODOs"; then
           echo "has_changes=true" >> $GITHUB_OUTPUT
           git push origin HEAD
@@ -142,36 +188,8 @@ runs:
           echo "Nothing to commit" >> $GITHUB_STEP_SUMMARY
         fi
 
-    - name: Determine branches for PR
-      id: branches
-      if: steps.commit.outputs.has_changes == 'true'
-      shell: bash
-      run: |
-        NEW_BRANCH="${{ inputs.new_branch_name }}"
-        TARGET_BRANCH="${{ inputs.target_branch_name }}"
-        
-        # Get current branch if not specified
-        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        
-        if [[ -z "$NEW_BRANCH" ]]; then
-          NEW_BRANCH="$CURRENT_BRANCH"
-        fi
-        
-        if [[ -z "$TARGET_BRANCH" ]]; then
-          TARGET_BRANCH="$CURRENT_BRANCH"
-        fi
-        
-        echo "new_branch=$NEW_BRANCH" >> $GITHUB_OUTPUT
-        echo "target_branch=$TARGET_BRANCH" >> $GITHUB_OUTPUT
-        
-        if [[ "$NEW_BRANCH" != "$TARGET_BRANCH" ]]; then
-          echo "should_create_pr=true" >> $GITHUB_OUTPUT
-        else
-          echo "should_create_pr=false" >> $GITHUB_OUTPUT
-        fi
-
     - name: Create pull request
-      if: steps.branches.outputs.should_create_pr == 'true'
+      if: steps.check_prs.outputs.skip_processing != 'true' && steps.branches.outputs.should_create_pr == 'true' && steps.commit.outputs.has_changes == 'true'
       shell: bash
       env:
         GITHUB_TOKEN: ${{ github.token }}
