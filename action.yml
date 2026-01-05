@@ -11,12 +11,12 @@ inputs:
     description: 'Check for open pull requests before running. If open PRs exist, skip processing'
     required: false
     default: 'false'
-  config_path:
-    description: 'Path to configuration file (relative to workspace)'
-    required: false
-    default: ''
   config:
     description: 'Inline YAML configuration (used when config_path is not set)'
+    required: false
+    default: ''
+  config_path:
+    description: 'Path to configuration file (relative to workspace)'
     required: false
     default: ''
   env_vars:
@@ -31,14 +31,14 @@ inputs:
     description: 'Target branch for pull request. If empty - use current branch'
     required: false
     default: ''
-  user_name:
-    description: 'Git user name for commits'
-    required: false
-    default: 'GitHub Action'
   user_email:
     description: 'Git user email for commits'
     required: false
     default: 'action@github.com'
+  user_name:
+    description: 'Git user name for commits'
+    required: false
+    default: 'GitHub Action'
   verbosity:
     description: 'Verbosity level: quiet, normal, verbose, very-verbose, debug'
     required: false
