@@ -162,7 +162,7 @@ runs:
         echo '${{ inputs.config }}' | docker run --rm -i \
           -v "${{ github.workspace }}:/code" \
           ${{ steps.env_flags.outputs.flags }} \
-          ghcr.io/aeliot-tm/todo-registrar:v2.1.0 \
+          ghcr.io/aeliot-tm/todo-registrar:v2.3.1 \
           ${{ steps.verbosity.outputs.flag }} \
           --config="${{ steps.config.outputs.path }}"
 
