@@ -7,10 +7,6 @@ branding:
   color: 'blue'
 
 inputs:
-  verbosity:
-    description: 'Verbosity level: quiet, normal, verbose, very-verbose, debug'
-    required: false
-    default: 'normal'
   check_opened:
     description: 'Check for open pull requests before running. If open PRs exist, skip processing'
     required: false
@@ -43,6 +39,10 @@ inputs:
     description: 'Git user email for commits'
     required: false
     default: 'action@github.com'
+  verbosity:
+    description: 'Verbosity level: quiet, normal, verbose, very-verbose, debug'
+    required: false
+    default: 'normal'
 
 runs:
   using: 'composite'
