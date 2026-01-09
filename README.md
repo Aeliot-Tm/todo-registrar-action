@@ -7,9 +7,9 @@
 
 GitHub Action for finding TODO comments in code and automatically creating issues in your issue tracker.
 
-This action is a wrapper around **[TODO registrar](https://github.com/Aeliot-Tm/todo-registrar)** Docker container.
+This action uses Docker container of **[TODO registrar](https://github.com/Aeliot-Tm/todo-registrar)**.
 
-## Features
+### Features
 
 - Scans your codebase for TODO/FIXME/etc comments.
 - Automatically creates issues in supported issue trackers (GitHub, GitLab, JIRA).
@@ -27,7 +27,7 @@ name: TODO registrar
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" ] # or "master" or "develop" (depends on your repository)
 
 permissions:
   contents: write
@@ -39,30 +39,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: TODO registrar
-        uses: Aeliot-Tm/todo-registrar-action@1.1.0
+      - uses: Aeliot-Tm/todo-registrar-action@1.1.0
         with:
-          config_path: scripts/todo-registrar/config.php
           new_branch_name: todo-registrar
-          target_branch_name: main # or master depends on your repository
 ```
-
-And you may create flexible scenarios for the maintaining of PRs' with branch names.
 
 ## Inputs
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `config_path` | No* | | Path to configuration file (relative to workspace) |
+| `check_opened` | No | | Check if exists opened PR from new branch to target or not. Processing skipped if exists. Default: true |
 | `config` | No* | | Inline YAML configuration |
+| `config_path` | No* | | Path to configuration file (relative to workspace) |
 | `env_vars` | No | | Environment variable names to pass to container (newline or space separated) |
-| `new_branch_name` | No | | Name of new branch to create for changes. If empty - stay on current branch |
-| `target_branch_name` | No | | Target branch for pull request. If empty - use current branch |
-| `user_name` | No | `GitHub Action` | Git user name for commits |
+| `new_branch_name` | No** | | Name of new branch to create for changes. If empty - stay on current branch |
+| `target_branch_name` | No** | | Target branch for pull request. If empty - use current branch |
 | `user_email` | No | `action@github.com` | Git user email for commits |
+| `user_name` | No | `GitHub Action` | Git user name for commits |
 | `verbosity` | No | `normal` | Verbosity level: `quiet`, `normal`, `verbose`, `very-verbose`, `debug` |
 
 \* Either `config_path` or `config` must be provided.
+
+\** You may create flexible scenarios for the maintaining of PRs' with branch names.
+If omitted both `new_branch_name` and `target_branch_name` or they are the same then PR will not be created
+but changes will be pushed.
+
+### Option check_opened
+
+Option `check_opened` is important to avoid creation of duplicated tickets. It is strongly recommended to set `true` to it.
+Nevertheless, you may switch it off and use your approach to handle it.
+
+If `true` the action performs the following checks and skips processing if any condition is met:
+- **Open PRs check**: If a PR will be created (`new_branch_name` differs from `target_branch_name`), checks for existing open PRs from new branch to target branch. Skips processing if found.
+- **Branch behind check**: If `new_branch_name` differs from current branch and exists on remote, checks if current HEAD is behind the remote branch. Skips processing if behind to avoid push conflicts.
 
 ## Examples
 
@@ -157,7 +166,6 @@ The action can automatically create a new branch, commit changes, push, and crea
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar-${{ github.run_id }}
-    target_branch_name: main
 ```
 
 **Git workflow behavior:**
@@ -173,11 +181,28 @@ The action can automatically create a new branch, commit changes, push, and crea
 - uses: Aeliot-Tm/todo-registrar-action@v1
   with:
     config_path: .todo-registrar.yaml
-    new_branch_name: todo-registrar-${{ github.run_id }}
-    target_branch_name: main
+    new_branch_name: todo-registrar
     user_name: 'My Bot'
     user_email: 'bot@example.com'
 ```
+
+## Permissions
+
+The first, config permissions of workflow:
+```yaml
+
+permissions:
+  contents: write         # required: allows commiting and pushing
+  pull-requests: write    # required: allows creating of PR
+  issues: write           # optional: allows creating of Issues on GitHub
+```
+
+The second, allow creation of PR by Action in the Setting of Repository:
+1. Go to your repository on GitHub
+2. **Settings** → **Actions** → **General**
+3. Scroll down to the "**Workflow permissions**" section
+4. Check "**Allow GitHub Actions to create and approve pull requests**"
+5. Click **Save**
 
 ## Configuration
 
