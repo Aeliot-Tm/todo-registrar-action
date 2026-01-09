@@ -186,6 +186,24 @@ The action can automatically create a new branch, commit changes, push, and crea
     user_email: 'bot@example.com'
 ```
 
+## Permissions
+
+The first, config permissions of workflow:
+```yaml
+
+permissions:
+  contents: write         # required: allows commiting and pushing
+  pull-requests: write    # required: allows creating of PR
+  issues: write           # optional: allows creating of Issues on GitHub
+```
+
+The second, allow creation of PR by Action in the Setting of Repository:
+1. Go to your repository on GitHub
+2. **Settings** → **Actions** → **General**
+3. Scroll down to the "**Workflow permissions**" section
+4. Check "**Allow GitHub Actions to create and approve pull requests**"
+5. Click **Save**
+
 ## Configuration
 
 For detailed configuration options, see the [TODO registrar documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/global_config_yaml.md).
