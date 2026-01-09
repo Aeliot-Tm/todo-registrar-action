@@ -73,6 +73,9 @@ If `true` the action performs the following checks and skips processing if any c
 - **Open PRs check**: If a PR will be created (`new_branch_name` differs from `target_branch_name`), checks for existing open PRs from new branch to target branch. Skips processing if found.
 - **Branch behind check**: If `new_branch_name` differs from current branch and exists on remote, checks if current HEAD is behind the remote branch. Skips processing if behind to avoid push conflicts.
 
+> **NOTE:** action finished successful (not fall) when skipped but produces 'Annotation' with the reason.
+> ![annotation.png](docs/annotation.png)
+
 ## Examples
 
 ### With configuration file
