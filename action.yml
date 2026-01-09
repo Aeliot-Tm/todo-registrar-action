@@ -126,22 +126,40 @@ runs:
           echo "should_create_pr=false" >> $GITHUB_OUTPUT
         fi
 
-    - name: Check for open pull requests
+    - name: Check for open pull requests and branch status
       id: check_prs
-      if: inputs.check_opened == 'true' && steps.branches.outputs.should_create_pr == 'true'
+      if: inputs.check_opened == 'true'
       shell: bash
       env:
         GITHUB_TOKEN: ${{ github.token }}
       run: |
-        OPEN_PRS=$(gh pr list --state open \
-          --head "${{ steps.branches.outputs.new_branch }}" \
-          --base "${{ steps.branches.outputs.target_branch }}" \
-          --json number --jq length)
-        if [[ "$OPEN_PRS" -gt 0 ]]; then
-          echo "skip_processing=true" >> $GITHUB_OUTPUT
-          echo "::notice::Found $OPEN_PRS open PR(s) from '${{ steps.branches.outputs.new_branch }}' to '${{ steps.branches.outputs.target_branch }}'. Skipping processing."
-        else
-          echo "skip_processing=false" >> $GITHUB_OUTPUT
+        # Default: don't skip processing
+        echo "skip_processing=false" >> $GITHUB_OUTPUT
+
+        # Check for open PRs
+        if [[ "${{ steps.branches.outputs.should_create_pr }}" == "true" ]]; then
+          OPEN_PRS=$(gh pr list --state open \
+            --head "${{ steps.branches.outputs.new_branch }}" \
+            --base "${{ steps.branches.outputs.target_branch }}" \
+            --json number --jq length)
+          if [[ "$OPEN_PRS" -gt 0 ]]; then
+            echo "skip_processing=true" >> $GITHUB_OUTPUT
+            echo "::notice::Found $OPEN_PRS open PR(s) from '${{ steps.branches.outputs.new_branch }}' to '${{ steps.branches.outputs.target_branch }}'. Skipping processing."
+            exit 0
+          fi
+        fi
+
+        # Check if behind remote
+        if [[ "${{ steps.branches.outputs.new_branch }}" != "${{ steps.branches.outputs.current_branch }}" ]]; then
+          git fetch origin --quiet
+          NEW_BRANCH="${{ steps.branches.outputs.new_branch }}"
+          if git show-ref --verify --quiet refs/remotes/origin/$NEW_BRANCH; then
+            BEHIND=$(git rev-list --count HEAD..origin/$NEW_BRANCH)
+            if [[ "$BEHIND" -gt 0 ]]; then
+              echo "skip_processing=true" >> $GITHUB_OUTPUT
+              echo "::notice::Remote branch 'origin/$NEW_BRANCH' is $BEHIND commit(s) ahead of current HEAD. Skipping processing."
+            fi
+          fi
         fi
 
     - name: Compose config path

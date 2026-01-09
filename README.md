@@ -69,6 +69,10 @@ but changes will be pushed.
 Option `check_opened` is important to avoid creation of duplicated tickets. It is strongly recommended to set `true` to it.
 Nevertheless, you may switch it off and use your approach to handle it.
 
+If `true` the action performs the following checks and skips processing if any condition is met:
+- **Open PRs check**: If a PR will be created (`new_branch_name` differs from `target_branch_name`), checks for existing open PRs from new branch to target branch. Skips processing if found.
+- **Branch behind check**: If `new_branch_name` differs from current branch and exists on remote, checks if current HEAD is behind the remote branch. Skips processing if behind to avoid push conflicts.
+
 ## Examples
 
 ### With configuration file
