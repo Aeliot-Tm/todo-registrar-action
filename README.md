@@ -74,7 +74,13 @@ If `true` the action performs the following checks and skips processing if any c
 - **Branch behind check**: If `new_branch_name` differs from current branch and exists on remote, checks if current HEAD is behind the remote branch. Skips processing if behind to avoid push conflicts.
 
 > **NOTE:** action finished successful (not fall) when skipped but produces 'Annotation' with the reason.
+>
 > ![annotation.png](docs/annotation.png)
+
+## Configuration
+
+For detailed description of configuration options, see the [TODO registrar documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config_yaml.md).
+And pay attention [to the loading of configuration file](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config.md).
 
 ## Examples
 
@@ -206,7 +212,3 @@ The second, allow creation of PR by Action in the Setting of Repository:
 3. Scroll down to the "**Workflow permissions**" section
 4. Check "**Allow GitHub Actions to create and approve pull requests**"
 5. Click **Save**
-
-## Configuration
-
-For detailed configuration options, see the [TODO registrar documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config_yaml.md).
