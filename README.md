@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: Aeliot-Tm/todo-registrar-action@1.3.0
+      - uses: Aeliot-Tm/todo-registrar-action@1.4.0
         with:
           new_branch_name: todo-registrar
 ```
@@ -81,7 +81,7 @@ If `true` the action performs the following checks and skips processing if any c
 ### With configuration file
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@v1.3.0
+- uses: Aeliot-Tm/todo-registrar-action@1.4.0
   with:
     config_path: .todo-registrar.yaml
 ```
@@ -89,7 +89,7 @@ If `true` the action performs the following checks and skips processing if any c
 ### With inline configuration
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@v1.3.0
+- uses: Aeliot-Tm/todo-registrar-action@v1.4.0
   with:
     config: |
       paths:
@@ -112,7 +112,7 @@ This works with both `config_path` and inline `config`:
 **With config file:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@v1.3.0
+- uses: Aeliot-Tm/todo-registrar-action@1.4.0
   env:
     GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
     GITHUB_OWNER: ${{ github.repository_owner }}
@@ -140,7 +140,7 @@ registrar:
 **With inline config:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@v1.3.0
+- uses: Aeliot-Tm/todo-registrar-action@1.4.0
   env:
     GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
     GITHUB_OWNER: ${{ github.repository_owner }}
@@ -165,7 +165,7 @@ registrar:
 The action can automatically create a new branch, commit changes, push, and create a pull request:
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@v1.3.0
+- uses: Aeliot-Tm/todo-registrar-action@1.4.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar-${{ github.run_id }}
@@ -181,7 +181,7 @@ The action can automatically create a new branch, commit changes, push, and crea
 **Custom git user configuration:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@v1.3.0
+- uses: Aeliot-Tm/todo-registrar-action@1.4.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar
