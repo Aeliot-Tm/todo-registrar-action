@@ -209,4 +209,4 @@ The second, allow creation of PR by Action in the Setting of Repository:
 
 ## Configuration
 
-For detailed configuration options, see the [TODO registrar documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/global_config_yaml.md).
+For detailed configuration options, see the [TODO registrar documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config_yaml.md).
