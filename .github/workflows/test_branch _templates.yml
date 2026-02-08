@@ -1,0 +1,316 @@
+name: Test Branch Templates
+
+on:
+  push:
+    branches: [ '**' ]
+
+jobs:
+  test-current-placeholder:
+    name: "Test {current} placeholder"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action with {current} template
+        id: action
+        uses: ./
+        with:
+          new_branch_name: '{current}-todo-registrar'
+          check_opened: 'false'
+          config: |
+            paths:
+              in: /code/.github
+            registrar:
+              type: GitHub
+              options:
+                service:
+                  personalAccessToken: dummy
+                  owner: test
+                  repository: test
+
+      - name: Verify {current} resolution
+        run: |
+          echo "Current branch: ${{ steps.action.outputs.current_branch }}"
+          echo "Template: ${{ steps.action.outputs.template_branch }}"
+          echo "Resolved: ${{ steps.action.outputs.new_branch }}"
+
+          EXPECTED="${{ steps.action.outputs.current_branch }}-todo-registrar"
+          ACTUAL="${{ steps.action.outputs.new_branch }}"
+
+          if [[ "$ACTUAL" == "$EXPECTED" ]]; then
+            echo "✓ PASS: {current} resolved correctly to '$ACTUAL'"
+          else
+            echo "✗ FAIL: expected '$EXPECTED', got '$ACTUAL'"
+            exit 1
+          fi
+
+  test-runner-id-placeholder:
+    name: "Test {runner_id} placeholder"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action with {runner_id} template
+        id: action
+        uses: ./
+        with:
+          new_branch_name: '{current}-{runner_id}-todo'
+          check_opened: 'false'
+          config: |
+            paths:
+              in: /code/.github
+            registrar:
+              type: GitHub
+              options:
+                service:
+                  personalAccessToken: dummy
+                  owner: test
+                  repository: test
+
+      - name: Verify {runner_id} resolution
+        run: |
+          echo "Template: ${{ steps.action.outputs.template_branch }}"
+          echo "Resolved: ${{ steps.action.outputs.new_branch }}"
+          echo "Run ID: ${{ github.run_id }}"
+
+          EXPECTED="${{ steps.action.outputs.current_branch }}-${{ github.run_id }}-todo"
+          ACTUAL="${{ steps.action.outputs.new_branch }}"
+
+          if [[ "$ACTUAL" == "$EXPECTED" ]]; then
+            echo "✓ PASS: {runner_id} resolved correctly to '$ACTUAL'"
+          else
+            echo "✗ FAIL: expected '$EXPECTED', got '$ACTUAL'"
+            exit 1
+          fi
+
+  test-random-placeholder:
+    name: "Test {random} placeholder"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action with {random} template
+        id: action
+        uses: ./
+        with:
+          new_branch_name: 'test-{random}-suffix'
+          check_opened: 'false'
+          config: |
+            paths:
+              in: /code/.github
+            registrar:
+              type: GitHub
+              options:
+                service:
+                  personalAccessToken: dummy
+                  owner: test
+                  repository: test
+
+      - name: Verify {random} resolution
+        run: |
+          echo "Template: ${{ steps.action.outputs.template_branch }}"
+          echo "Resolved: ${{ steps.action.outputs.new_branch }}"
+
+          ACTUAL="${{ steps.action.outputs.new_branch }}"
+
+          # Check format: test-XXXXX-suffix where X is [0-9a-z]
+          if [[ "$ACTUAL" =~ ^test-[0-9a-z]{5}-suffix$ ]]; then
+            echo "✓ PASS: {random} resolved correctly to '$ACTUAL' (5 chars)"
+          else
+            echo "✗ FAIL: '$ACTUAL' does not match pattern 'test-[0-9a-z]{5}-suffix'"
+            exit 1
+          fi
+
+  test-random-with-length:
+    name: "Test {random:N} placeholder"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action with {random:10} template
+        id: action
+        uses: ./
+        with:
+          new_branch_name: '{random:10}-branch'
+          check_opened: 'false'
+          config: |
+            paths:
+              in: /code/.github
+            registrar:
+              type: GitHub
+              options:
+                service:
+                  personalAccessToken: dummy
+                  owner: test
+                  repository: test
+
+      - name: Verify {random:10} resolution
+        run: |
+          echo "Template: ${{ steps.action.outputs.template_branch }}"
+          echo "Resolved: ${{ steps.action.outputs.new_branch }}"
+
+          ACTUAL="${{ steps.action.outputs.new_branch }}"
+
+          # Check format: XXXXXXXXXX-branch where X is [0-9a-z] (10 chars)
+          if [[ "$ACTUAL" =~ ^[0-9a-z]{10}-branch$ ]]; then
+            echo "✓ PASS: {random:10} resolved correctly to '$ACTUAL' (10 chars)"
+          else
+            echo "✗ FAIL: '$ACTUAL' does not match pattern '[0-9a-z]{10}-branch'"
+            exit 1
+          fi
+
+  test-case-insensitive:
+    name: "Test case insensitivity"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action with uppercase placeholders
+        id: action
+        uses: ./
+        with:
+          new_branch_name: '{CURRENT}-{RUNNER_ID}-todo'
+          check_opened: 'false'
+          config: |
+            paths:
+              in: /code/.github
+            registrar:
+              type: GitHub
+              options:
+                service:
+                  personalAccessToken: dummy
+                  owner: test
+                  repository: test
+
+      - name: Verify case insensitive resolution
+        run: |
+          echo "Template: ${{ steps.action.outputs.template_branch }}"
+          echo "Resolved: ${{ steps.action.outputs.new_branch }}"
+
+          EXPECTED="${{ steps.action.outputs.current_branch }}-${{ github.run_id }}-todo"
+          ACTUAL="${{ steps.action.outputs.new_branch }}"
+
+          if [[ "$ACTUAL" == "$EXPECTED" ]]; then
+            echo "✓ PASS: Uppercase placeholders resolved correctly to '$ACTUAL'"
+          else
+            echo "✗ FAIL: expected '$EXPECTED', got '$ACTUAL'"
+            exit 1
+          fi
+
+  test-typo-curent:
+    name: "Test {curent} typo"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action with {curent} typo
+        id: action
+        uses: ./
+        with:
+          new_branch_name: '{curent}-todo'
+          check_opened: 'false'
+          config: |
+            paths:
+              in: /code/.github
+            registrar:
+              type: GitHub
+              options:
+                service:
+                  personalAccessToken: dummy
+                  owner: test
+                  repository: test
+
+      - name: Verify {curent} typo is handled
+        run: |
+          echo "Template: ${{ steps.action.outputs.template_branch }}"
+          echo "Resolved: ${{ steps.action.outputs.new_branch }}"
+
+          EXPECTED="${{ steps.action.outputs.current_branch }}-todo"
+          ACTUAL="${{ steps.action.outputs.new_branch }}"
+
+          if [[ "$ACTUAL" == "$EXPECTED" ]]; then
+            echo "✓ PASS: {curent} typo resolved correctly to '$ACTUAL'"
+          else
+            echo "✗ FAIL: expected '$EXPECTED', got '$ACTUAL'"
+            exit 1
+          fi
+
+  test-complex-template:
+    name: "Test complex template"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action with complex template
+        id: action
+        uses: ./
+        with:
+          new_branch_name: '{current}-{runner_id}-{random:3}-todo'
+          check_opened: 'false'
+          config: |
+            paths:
+              in: /code/.github
+            registrar:
+              type: GitHub
+              options:
+                service:
+                  personalAccessToken: dummy
+                  owner: test
+                  repository: test
+
+      - name: Verify complex template resolution
+        run: |
+          echo "Template: ${{ steps.action.outputs.template_branch }}"
+          echo "Resolved: ${{ steps.action.outputs.new_branch }}"
+
+          CURRENT="${{ steps.action.outputs.current_branch }}"
+          RUN_ID="${{ github.run_id }}"
+          ACTUAL="${{ steps.action.outputs.new_branch }}"
+
+          # Pattern: {current}-{run_id}-XXX-todo
+          PATTERN="^${CURRENT}-${RUN_ID}-[0-9a-z]{3}-todo$"
+
+          if [[ "$ACTUAL" =~ $PATTERN ]]; then
+            echo "✓ PASS: Complex template resolved correctly to '$ACTUAL'"
+          else
+            echo "✗ FAIL: '$ACTUAL' does not match pattern '$PATTERN'"
+            exit 1
+          fi
+
+  test-runnerId-camelcase:
+    name: "Test {runnerId} camelCase"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action with {runnerId} camelCase
+        id: action
+        uses: ./
+        with:
+          new_branch_name: '{current}-{runnerId}-todo'
+          check_opened: 'false'
+          config: |
+            paths:
+              in: /code/.github
+            registrar:
+              type: GitHub
+              options:
+                service:
+                  personalAccessToken: dummy
+                  owner: test
+                  repository: test
+
+      - name: Verify {runnerId} resolution
+        run: |
+          echo "Template: ${{ steps.action.outputs.template_branch }}"
+          echo "Resolved: ${{ steps.action.outputs.new_branch }}"
+
+          EXPECTED="${{ steps.action.outputs.current_branch }}-${{ github.run_id }}-todo"
+          ACTUAL="${{ steps.action.outputs.new_branch }}"
+
+          if [[ "$ACTUAL" == "$EXPECTED" ]]; then
+            echo "✓ PASS: {runnerId} resolved correctly to '$ACTUAL'"
+          else
+            echo "✗ FAIL: expected '$EXPECTED', got '$ACTUAL'"
+            exit 1
+          fi

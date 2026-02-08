@@ -44,6 +44,26 @@ inputs:
     required: false
     default: 'normal'
 
+outputs:
+  current_branch:
+    description: 'Current branch name'
+    value: ${{ steps.branches.outputs.current_branch }}
+  template_branch:
+    description: 'Original template before placeholder resolution'
+    value: ${{ steps.branches.outputs.template_branch }}
+  new_branch:
+    description: 'Resolved branch name after placeholder substitution'
+    value: ${{ steps.branches.outputs.new_branch }}
+  target_branch:
+    description: 'Target branch for pull request'
+    value: ${{ steps.branches.outputs.target_branch }}
+  skipped:
+    description: 'Whether processing was skipped (true/false)'
+    value: ${{ steps.check_prs.outputs.skip_processing || 'false' }}
+  has_changes:
+    description: 'Whether there were changes to commit (true/false)'
+    value: ${{ steps.commit.outputs.has_changes || 'false' }}
+
 runs:
   using: 'composite'
   steps:

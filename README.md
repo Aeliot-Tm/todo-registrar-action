@@ -110,6 +110,17 @@ Option `check_opened` is important to avoid creation of duplicated tickets. It i
 >
 > ![annotation.png](docs/annotation.png)
 
+## Outputs
+
+| Output | Description |
+|--------|-------------|
+| `current_branch` | Current branch name |
+| `has_changes` | Whether there were changes to commit (`true`/`false`) |
+| `new_branch` | Resolved branch name after placeholder substitution |
+| `skipped` | Whether processing was skipped (`true`/`false`) |
+| `template_branch` | Original template before placeholder resolution |
+| `target_branch` | Target branch for pull request |
+
 ## Configuration
 
 For detailed description of configuration options, see the [TODO registrar documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config_yaml.md).
