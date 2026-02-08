@@ -130,7 +130,13 @@ runs:
         # Function to generate random alphanumeric string
         generate_random() {
           local length=${1:-5}
-          cat /dev/urandom | tr -dc '0-9a-z' | head -c "$length"
+          local result=""
+          # ~14% of bytes are [0-9a-z], read in chunks until we have enough
+          while [[ ${#result} -lt $length ]]; do
+            local chunk=$(head -c 256 /dev/urandom | tr -dc '0-9a-z')
+            result="${result}${chunk}"
+          done
+          echo "${result:0:$length}"
         }
 
         TARGET_BRANCH="${{ inputs.target_branch_name }}"
