@@ -19,6 +19,8 @@ This action uses Docker container of **[TODO registrar](https://github.com/Aelio
 Action adds numbers of ticket inside TODOs in the code and makes commit. It permits to avoid creation
 of duplicated tickets, and you don't need in 'supporting database'. All saved in your repository.
 
+![detect_register_inject.png](docs/detect_register_inject.png)
+
 ## Usage
 
 Create a workflow file in your `.github/workflows/todo-registrar.yaml` directory with the following contents:
