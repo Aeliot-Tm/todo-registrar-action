@@ -48,11 +48,11 @@ jobs:
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `check_opened` | No | | Check if exists opened PR from new branch to target or not. Processing skipped if exists. Default: true |
+| `check_opened` | No | `true` | Check for open PRs: `true` (exact match), `like` (pattern match for templates), `false` (skip check) |
 | `config` | No* | | Inline YAML configuration |
 | `config_path` | No* | | Path to configuration file (relative to workspace) |
 | `env_vars` | No | | Environment variable names to pass to container (newline or space separated) |
-| `new_branch_name` | No** | | Name of new branch to create for changes. If empty - stay on current branch |
+| `new_branch_name` | No** | | Branch name or template with placeholders. If empty - stay on current branch |
 | `target_branch_name` | No** | | Target branch for pull request. If empty - use current branch |
 | `user_email` | No | `action@github.com` | Git user email for commits |
 | `user_name` | No | `GitHub Action` | Git user name for commits |
@@ -64,18 +64,62 @@ jobs:
 If omitted both `new_branch_name` and `target_branch_name` or they are the same then PR will not be created
 but changes will be pushed.
 
+### Option new_branch_name
+
+The `new_branch_name` option supports template placeholders that are replaced at runtime. All placeholders are **case-insensitive**.
+
+| Placeholder | Description |
+|-------------|-------------|
+| `{current}` | Current branch name |
+| `{runner_id}`, `{runnerId}` | GitHub workflow run ID (`github.run_id`) |
+| `{random}` | Random alphanumeric string (5 characters by default) |
+| `{random:N}` | Random alphanumeric string of N characters (e.g., `{random:10}`) |
+
+**Examples of template resolving:**
+
+| Template | Resolved Branch Name |
+|---|---|
+| `{current}-todo-registrar-{random}` | `main-todo-registrar-a1b2c` |
+| `{current}-{runner_id}-todo-registrar` | `main-12345678-todo-registrar` |
+| `todo-registrar-{random:10}` | `todo-registrar-a1b2c3d4e5` |
+
+> **Note:** The typo `{curent}` (single 'r') is also supported but will produce a warning.
+
 ### Option check_opened
 
-Option `check_opened` is important to avoid creation of duplicated tickets. It is strongly recommended to set `true` to it.
-Nevertheless, you may switch it off and use your approach to handle it.
+Option `check_opened` is important to avoid creation of duplicated tickets. It is strongly recommended to use it.
 
-If `true` the action performs the following checks and skips processing if any condition is met:
-- **Open PRs check**: If a PR will be created (`new_branch_name` differs from `target_branch_name`), checks for existing open PRs from new branch to target branch. Skips processing if found.
-- **Branch behind check**: If `new_branch_name` differs from current branch and exists on remote, checks if current HEAD is behind the remote branch. Skips processing if behind to avoid push conflicts.
+**Values:**
 
-> **NOTE:** action finished successful (not fall) when skipped but produces 'Annotation' with the reason.
+| Value | Description |
+|-------|-------------|
+| `true` | Exact match - checks for open PRs with exact branch name |
+| `like` | Pattern match - checks for open PRs matching the template pattern |
+| `false` | Skip check - no PR checking performed |
+
+**Behavior:**
+
+- **`true` (exact match)**: Checks for existing open PRs from `new_branch_name` to `target_branch_name`. Skips processing if found.
+- **`like` (pattern match)**: Converts the `new_branch_name` template to a regex pattern and checks if any open PR's head branch matches. Useful when branch names contain dynamic parts like `{runner_id}` or `{random}`.
+  - `{current}` → matches literal current branch name
+  - `{runner_id}`, `{runnerId}` → matches any digits (`[0-9]+`)
+  - `{random}`, `{random:N}` → matches alphanumeric characters (`[0-9a-z]+`)
+- **Branch behind check** (for both `true` and `like`): If `new_branch_name` differs from current branch and exists on remote, checks if current HEAD is behind the remote branch. Skips processing if behind to avoid push conflicts.
+
+> **NOTE:** action finishes successful (not fail) when skipped but produces 'Annotation' with the reason.
 >
 > ![annotation.png](docs/annotation.png)
+
+## Outputs
+
+| Output | Description |
+|--------|-------------|
+| `current_branch` | Current branch name |
+| `has_changes` | Whether there were changes to commit (`true`/`false`) |
+| `new_branch` | Resolved branch name after placeholder substitution |
+| `skipped` | Whether processing was skipped (`true`/`false`) |
+| `template_branch` | Original template before placeholder resolution |
+| `target_branch` | Target branch for pull request |
 
 ## Configuration
 
@@ -174,8 +218,11 @@ The action can automatically create a new branch, commit changes, push, and crea
 - uses: Aeliot-Tm/todo-registrar-action@1.4.0
   with:
     config_path: .todo-registrar.yaml
-    new_branch_name: todo-registrar-${{ github.run_id }}
+    new_branch_name: '{current}-todo-registrar-{runner_id}'
+    check_opened: 'like'
 ```
+
+This creates a branch like `main-todo-registrar-12345678` and uses pattern matching to detect any existing PR with a similar name pattern.
 
 **Git workflow behavior:**
 

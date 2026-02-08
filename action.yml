@@ -8,7 +8,7 @@ branding:
 
 inputs:
   check_opened:
-    description: 'Check for open pull requests before running. If open PRs exist, skip processing'
+    description: 'Check for open PRs. Values: true (exact match), like (pattern match for templates), false (skip check)'
     required: false
     default: 'true'
   config:
@@ -24,7 +24,7 @@ inputs:
     required: false
     default: ''
   new_branch_name:
-    description: 'Name of new branch to create for changes. If empty - stay on current branch'
+    description: 'Branch name or template. Placeholders: {current}, {runner_id}, {runnerId}, {random}, {random:N}. If empty - stay on current branch'
     required: false
     default: ''
   target_branch_name:
@@ -43,6 +43,26 @@ inputs:
     description: 'Verbosity level: quiet, normal, verbose, very-verbose, debug'
     required: false
     default: 'normal'
+
+outputs:
+  current_branch:
+    description: 'Current branch name'
+    value: ${{ steps.branches.outputs.current_branch }}
+  template_branch:
+    description: 'Original template before placeholder resolution'
+    value: ${{ steps.branches.outputs.template_branch }}
+  new_branch:
+    description: 'Resolved branch name after placeholder substitution'
+    value: ${{ steps.branches.outputs.new_branch }}
+  target_branch:
+    description: 'Target branch for pull request'
+    value: ${{ steps.branches.outputs.target_branch }}
+  skipped:
+    description: 'Whether processing was skipped (true/false)'
+    value: ${{ steps.check_prs.outputs.skip_processing || 'false' }}
+  has_changes:
+    description: 'Whether there were changes to commit (true/false)'
+    value: ${{ steps.commit.outputs.has_changes || 'false' }}
 
 runs:
   using: 'composite'
@@ -107,17 +127,60 @@ runs:
       id: branches
       shell: bash
       run: |
-        NEW_BRANCH="${{ inputs.new_branch_name }}"
+        # Function to generate random alphanumeric string
+        generate_random() {
+          local length=${1:-5}
+          local result=""
+          # ~14% of bytes are [0-9a-z], read in chunks until we have enough
+          while [[ ${#result} -lt $length ]]; do
+            local chunk=$(head -c 256 /dev/urandom | tr -dc '0-9a-z')
+            result="${result}${chunk}"
+          done
+          echo "${result:0:$length}"
+        }
+
         TARGET_BRANCH="${{ inputs.target_branch_name }}"
-        # Get current branch if not specified
+        TEMPLATE_BRANCH="${{ inputs.new_branch_name }}"
+
+        # Get current branch
         CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+        # Start with template
+        NEW_BRANCH="$TEMPLATE_BRANCH"
+
+        # Check for typo {curent} (single 'r') and warn - case insensitive
+        shopt -s nocasematch
+        if [[ "$NEW_BRANCH" =~ \{curent\} ]]; then
+          echo "::warning::Typo detected: '{curent}' should be '{current}'. Processing continues with corrected value."
+        fi
+        shopt -u nocasematch
+
+        # Replace {current} or {curent} (typo) with current branch - case insensitive
+        NEW_BRANCH=$(echo "$NEW_BRANCH" | sed -E "s/\{curr?ent\}/$CURRENT_BRANCH/gi")
+
+        # Replace {runner_id} or {runnerId} with github.run_id - case insensitive
+        NEW_BRANCH=$(echo "$NEW_BRANCH" | sed -E "s/\{runner_?id\}/${{ github.run_id }}/gi")
+
+        # Replace {random} or {random:N} with random string - case insensitive
+        shopt -s nocasematch
+        while [[ "$NEW_BRANCH" =~ \{random(:([0-9]+))?\} ]]; do
+          LENGTH="${BASH_REMATCH[2]:-5}"  # Use captured length or default to 5
+          RANDOM_STR=$(generate_random "$LENGTH")
+          MATCH="${BASH_REMATCH[0]}"      # Full match: {random} or {random:10}
+          NEW_BRANCH="${NEW_BRANCH/$MATCH/$RANDOM_STR}"
+        done
+        shopt -u nocasematch
+
+        # If template was empty, use current branch
         if [[ -z "$NEW_BRANCH" ]]; then
           NEW_BRANCH="$CURRENT_BRANCH"
         fi
         if [[ -z "$TARGET_BRANCH" ]]; then
           TARGET_BRANCH="$CURRENT_BRANCH"
         fi
+
         echo "current_branch=$CURRENT_BRANCH" >> $GITHUB_OUTPUT
+        echo "template_branch=$TEMPLATE_BRANCH" >> $GITHUB_OUTPUT
         echo "new_branch=$NEW_BRANCH" >> $GITHUB_OUTPUT
         echo "target_branch=$TARGET_BRANCH" >> $GITHUB_OUTPUT
         if [[ "$NEW_BRANCH" != "$TARGET_BRANCH" ]]; then
@@ -128,7 +191,7 @@ runs:
 
     - name: Check for open pull requests and branch status
       id: check_prs
-      if: inputs.check_opened == 'true'
+      if: inputs.check_opened == 'true' || inputs.check_opened == 'like'
       shell: bash
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -138,14 +201,58 @@ runs:
 
         # Check for open PRs
         if [[ "${{ steps.branches.outputs.should_create_pr }}" == "true" ]]; then
-          OPEN_PRS=$(gh pr list --state open \
-            --head "${{ steps.branches.outputs.new_branch }}" \
-            --base "${{ steps.branches.outputs.target_branch }}" \
-            --json number --jq length)
-          if [[ "$OPEN_PRS" -gt 0 ]]; then
-            echo "skip_processing=true" >> $GITHUB_OUTPUT
-            echo "::notice::Found $OPEN_PRS open PR(s) from '${{ steps.branches.outputs.new_branch }}' to '${{ steps.branches.outputs.target_branch }}'. Skipping processing."
-            exit 0
+          if [[ "${{ inputs.check_opened }}" == "like" ]]; then
+            # Pattern matching mode for templates
+            TEMPLATE="${{ steps.branches.outputs.template_branch }}"
+            CURRENT_BRANCH="${{ steps.branches.outputs.current_branch }}"
+
+            # If template is empty, behave like exact match
+            if [[ -z "$TEMPLATE" ]]; then
+              TEMPLATE="$CURRENT_BRANCH"
+            fi
+
+            # Build regex pattern from template
+            # First, escape special regex characters in the template
+            PATTERN=$(echo "$TEMPLATE" | sed -E 's/([.+?^${}()|[\]\\])/\\\1/g')
+
+            # Replace {current} or {curent} (typo) with escaped current branch - case insensitive
+            ESCAPED_CURRENT=$(echo "$CURRENT_BRANCH" | sed -E 's/([.+?^${}()|[\]\\])/\\\1/g')
+            PATTERN=$(echo "$PATTERN" | sed -E "s/\\\{curr?ent\\\}/$ESCAPED_CURRENT/gi")
+
+            # Replace {runner_id} or {runnerId} with [0-9]+ pattern - case insensitive
+            PATTERN=$(echo "$PATTERN" | sed -E "s/\\\{runner_?id\\\}/[0-9]+/gi")
+
+            # Replace {random} or {random:N} with [0-9a-z]+ pattern - case insensitive
+            PATTERN=$(echo "$PATTERN" | sed -E "s/\\\{random(:[0-9]+)?\\\}/[0-9a-z]+/gi")
+
+            # Get all open PRs to target branch (with pagination for large repos)
+            OPEN_PR_HEADS=$(gh api --paginate \
+              "repos/${{ github.repository }}/pulls" \
+              -f state=open \
+              -f base="${{ steps.branches.outputs.target_branch }}" \
+              --jq '.[].head.ref')
+
+            # Check if any head branch matches the pattern
+            while IFS= read -r head_branch; do
+              [[ -z "$head_branch" ]] && continue
+              if [[ "$head_branch" =~ ^${PATTERN}$ ]]; then
+                echo "skip_processing=true" >> $GITHUB_OUTPUT
+                echo "::notice::Found open PR from '$head_branch' matching pattern '$TEMPLATE' to '${{ steps.branches.outputs.target_branch }}'. Skipping processing."
+                exit 0
+              fi
+            done <<< "$OPEN_PR_HEADS"
+          else
+            # Exact match mode (check_opened == 'true')
+            OPEN_PR=$(gh pr list --state open \
+              --head "${{ steps.branches.outputs.new_branch }}" \
+              --base "${{ steps.branches.outputs.target_branch }}" \
+              --limit 1 \
+              --json number --jq '.[0].number // empty')
+            if [[ -n "$OPEN_PR" ]]; then
+              echo "skip_processing=true" >> $GITHUB_OUTPUT
+              echo "::notice::Found open PR #$OPEN_PR from '${{ steps.branches.outputs.new_branch }}' to '${{ steps.branches.outputs.target_branch }}'. Skipping processing."
+              exit 0
+            fi
           fi
         fi
 
