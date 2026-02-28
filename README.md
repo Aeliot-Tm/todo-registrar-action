@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: Aeliot-Tm/todo-registrar-action@1.4.0
+      - uses: Aeliot-Tm/todo-registrar-action@1.6.0
         with:
           new_branch_name: todo-registrar
 ```
@@ -133,7 +133,7 @@ And pay attention [to the loading of configuration file](https://github.com/Aeli
 ### With configuration file
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.4.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.0
   with:
     config_path: .todo-registrar.yaml
 ```
@@ -164,7 +164,7 @@ This works with both `config_path` and inline `config`:
 **With config file:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.4.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.0
   env:
     GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
     GITHUB_OWNER: ${{ github.repository_owner }}
@@ -192,7 +192,7 @@ registrar:
 **With inline config:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.4.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.0
   env:
     GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
     GITHUB_OWNER: ${{ github.repository_owner }}
@@ -217,7 +217,7 @@ registrar:
 The action can automatically create a new branch, commit changes, push, and create a pull request:
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.4.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: '{current}-todo-registrar-{runner_id}'
@@ -236,7 +236,7 @@ This creates a branch like `main-todo-registrar-12345678` and uses pattern match
 **Custom git user configuration:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.4.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar
