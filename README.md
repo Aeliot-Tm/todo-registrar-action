@@ -21,6 +21,8 @@ of duplicated tickets, and you don't need in 'supporting database'. All saved in
 
 ![detect_register_inject.png](docs/detect_register_inject.png)
 
+> See latest **benchmark [here](https://github.com/Aeliot-Tm/todo-registrar-benchmark/blob/main/benchmark.md)**.
+
 ## Usage
 
 Create a workflow file in your `.github/workflows/todo-registrar.yaml` directory with the following contents:
