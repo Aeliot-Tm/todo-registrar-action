@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: Aeliot-Tm/todo-registrar-action@1.6.0
+      - uses: Aeliot-Tm/todo-registrar-action@1.6.4
         with:
           new_branch_name: todo-registrar
 ```
@@ -137,7 +137,7 @@ And pay attention [to the loading of configuration file](https://github.com/Aeli
 If you have a configuration file at one of the default paths checked by todo-registrar (e.g., `.todo-registrar.yaml`, `.todo-registrar.yml`, etc.), you can omit both `config_path` and `config`:
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.4
   with:
     new_branch_name: todo-registrar
 ```
@@ -145,7 +145,7 @@ If you have a configuration file at one of the default paths checked by todo-reg
 ### With configuration file
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.4
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar
@@ -154,7 +154,7 @@ If you have a configuration file at one of the default paths checked by todo-reg
 ### With inline configuration
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@v1.4.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.4
   with:
     config: |
       paths:
@@ -177,7 +177,7 @@ This works with both `config_path` and inline `config`:
 **With config file:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.4
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     GITHUB_REPO: "${{ github.repository }}"
@@ -203,7 +203,7 @@ registrar:
 **With inline config:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.4
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   with:
@@ -225,7 +225,7 @@ registrar:
 The action can automatically create a new branch, commit changes, push, and create a pull request:
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.4
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: '{current}-todo-registrar-{runner_id}'
@@ -244,7 +244,7 @@ This creates a branch like `main-todo-registrar-12345678` and uses pattern match
 **Custom git user configuration:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.4
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar
@@ -284,7 +284,7 @@ you must use a separate personal access token (PAT) or a GitHub App token instea
 **Example with a separate token:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.0
+- uses: Aeliot-Tm/todo-registrar-action@1.6.4
   env:
     GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
   with:
