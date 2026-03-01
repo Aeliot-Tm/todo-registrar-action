@@ -179,7 +179,7 @@ This works with both `config_path` and inline `config`:
 ```yaml
 - uses: Aeliot-Tm/todo-registrar-action@1.6.0
   env:
-    GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     GITHUB_REPO: "${{ github.repository }}"
   with:
     config_path: .todo-registrar.yaml
@@ -205,7 +205,7 @@ registrar:
 ```yaml
 - uses: Aeliot-Tm/todo-registrar-action@1.6.0
   env:
-    GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   with:
     env_vars: |
       GITHUB_TOKEN
@@ -269,3 +269,25 @@ The second, allow creation of PR by Action in the Setting of Repository:
 3. Scroll down to the "**Workflow permissions**" section
 4. Check "**Allow GitHub Actions to create and approve pull requests**"
 5. Click **Save**
+
+### Triggering workflows for issues
+
+By default, the action uses the standard runner token (`secrets.GITHUB_TOKEN`). However, events created
+with this token (such as issue creation) **will not trigger other GitHub Actions workflows**.
+This is a [GitHub limitation](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)
+designed to prevent recursive workflow runs.
+
+If you need issue-related workflows to be triggered automatically (e.g., labeling, notifications, project board automation),
+you must use a separate personal access token (PAT) or a GitHub App token instead of the default one.
+
+**Example with a separate token:**
+
+```yaml
+- uses: Aeliot-Tm/todo-registrar-action@1.6.0
+  env:
+    GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
+  with:
+    config_path: .todo-registrar.yaml
+    env_vars: GITHUB_TOKEN
+    new_branch_name: todo-registrar
+```
