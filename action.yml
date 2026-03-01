@@ -12,11 +12,11 @@ inputs:
     required: false
     default: 'true'
   config:
-    description: 'Inline YAML configuration (used when config_path is not set)'
+    description: 'Inline YAML configuration (used when config_path is not set). If neither config nor config_path is provided, todo-registrar will check default paths'
     required: false
     default: ''
   config_path:
-    description: 'Path to configuration file (relative to workspace)'
+    description: 'Path to configuration file (relative to workspace). If neither config_path nor config is provided, todo-registrar will check default paths'
     required: false
     default: ''
   env_vars:
@@ -67,16 +67,6 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Validate inputs
-      shell: bash
-      run: |
-        read -r -d '' CONFIG_CONTENT <<'EOF' || true
-        ${{ inputs.config }}
-        EOF
-        if [[ -z "${{ inputs.config_path }}" && -z "$CONFIG_CONTENT" ]]; then
-          echo "::error::Either 'config_path' or 'config' input must be provided"
-          exit 1
-        fi
 
     - name: Map verbosity to flag
       id: verbosity
@@ -272,29 +262,50 @@ runs:
           fi
         fi
 
-    - name: Compose config path
+    - name: Compose config path and flag
       id: config
       if: steps.check_prs.outputs.skip_processing != 'true'
       shell: bash
       run: |
+        read -r -d '' CONFIG_CONTENT <<'EOF' || true
+        ${{ inputs.config }}
+        EOF
+        
         if [[ -n "${{ inputs.config_path }}" ]]; then
           echo "path=/code/${{ inputs.config_path }}" >> $GITHUB_OUTPUT
-        else
+          echo "flag=--config=/code/${{ inputs.config_path }}" >> $GITHUB_OUTPUT
+          echo "use_stdin=false" >> $GITHUB_OUTPUT
+        elif [[ -n "$CONFIG_CONTENT" ]]; then
           echo "path=STDIN" >> $GITHUB_OUTPUT
+          echo "flag=--config=STDIN" >> $GITHUB_OUTPUT
+          echo "use_stdin=true" >> $GITHUB_OUTPUT
+        else
+          echo "path=" >> $GITHUB_OUTPUT
+          echo "flag=" >> $GITHUB_OUTPUT
+          echo "use_stdin=false" >> $GITHUB_OUTPUT
         fi
 
     - name: Run TODO Registrar
       if: steps.check_prs.outputs.skip_processing != 'true'
       shell: bash
       run: |
-        cat <<'EOF' | docker run --rm -i \
-          -v "${{ github.workspace }}:/code" \
-          ${{ steps.env_flags.outputs.flags }} \
-          ghcr.io/aeliot-tm/todo-registrar:3.4.0 \
-          ${{ steps.verbosity.outputs.flag }} \
-          --config="${{ steps.config.outputs.path }}"
+        if [[ "${{ steps.config.outputs.use_stdin }}" == "true" ]]; then
+          cat <<'EOF' | docker run --rm -i \
+            -v "${{ github.workspace }}:/code" \
+            ${{ steps.env_flags.outputs.flags }} \
+            ghcr.io/aeliot-tm/todo-registrar:3.4.0 \
+            ${{ steps.verbosity.outputs.flag }} \
+            ${{ steps.config.outputs.flag }}
         ${{ inputs.config }}
         EOF
+        else
+          docker run --rm \
+            -v "${{ github.workspace }}:/code" \
+            ${{ steps.env_flags.outputs.flags }} \
+            ghcr.io/aeliot-tm/todo-registrar:3.4.0 \
+            ${{ steps.verbosity.outputs.flag }} \
+            ${{ steps.config.outputs.flag }}
+        fi
 
     - name: Checkout new branch
       if: steps.check_prs.outputs.skip_processing != 'true' && steps.branches.outputs.new_branch != steps.branches.outputs.current_branch

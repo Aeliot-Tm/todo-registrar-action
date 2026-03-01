@@ -62,11 +62,11 @@ jobs:
 | `user_name` | No | `GitHub Action` | Git user name for commits |
 | `verbosity` | No | `normal` | Verbosity level: `quiet`, `normal`, `verbose`, `very-verbose`, `debug` |
 
-\* Either `config_path` or `config` must be provided.
-
-\** You may create flexible scenarios for the maintaining of PRs' with branch names.
-If omitted both `new_branch_name` and `target_branch_name` or they are the same then PR will not be created
-but changes will be pushed.
+> \* If neither `config_path` nor `config` is provided, todo-registrar will check default configuration paths (see [configuration loading documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config.md)).
+>
+> \** You may create flexible scenarios for the maintaining of PRs' with branch names.
+> If omitted both `new_branch_name` and `target_branch_name` or they are the same then PR will not be created
+> but changes will be pushed.
 
 ### Option new_branch_name
 
@@ -131,6 +131,16 @@ For detailed description of configuration options, see the [TODO registrar docum
 And pay attention [to the loading of configuration file](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config.md).
 
 ## Examples
+
+### With default configuration paths
+
+If you have a configuration file at one of the default paths checked by todo-registrar (e.g., `.todo-registrar.yaml`, `.todo-registrar.yml`, etc.), you can omit both `config_path` and `config`:
+
+```yaml
+- uses: Aeliot-Tm/todo-registrar-action@1.6.0
+  with:
+    new_branch_name: todo-registrar
+```
 
 ### With configuration file
 
