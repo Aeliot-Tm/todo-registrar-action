@@ -268,7 +268,8 @@ The second, allow creation of PR by Action in the Setting of Repository:
 2. **Settings** → **Actions** → **General**
 3. Scroll down to the "**Workflow permissions**" section
 4. Check "**Allow GitHub Actions to create and approve pull requests**"
-5. Click **Save**
+5. Optional. Select "**Read and write permissions**" to allow creation of issues in the repository.
+6. Click **Save**
 
 ### Triggering workflows for issues
 
