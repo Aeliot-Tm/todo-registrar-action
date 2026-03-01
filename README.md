@@ -62,11 +62,11 @@ jobs:
 | `user_name` | No | `GitHub Action` | Git user name for commits |
 | `verbosity` | No | `normal` | Verbosity level: `quiet`, `normal`, `verbose`, `very-verbose`, `debug` |
 
-\* If neither `config_path` nor `config` is provided, todo-registrar will check default configuration paths (see [configuration loading documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config.md)).
-
-\** You may create flexible scenarios for the maintaining of PRs' with branch names.
-If omitted both `new_branch_name` and `target_branch_name` or they are the same then PR will not be created
-but changes will be pushed.
+> \* If neither `config_path` nor `config` is provided, todo-registrar will check default configuration paths (see [configuration loading documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config.md)).
+>
+> \** You may create flexible scenarios for the maintaining of PRs' with branch names.
+> If omitted both `new_branch_name` and `target_branch_name` or they are the same then PR will not be created
+> but changes will be pushed.
 
 ### Option new_branch_name
 
