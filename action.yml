@@ -70,7 +70,8 @@ runs:
     - name: Validate inputs
       shell: bash
       run: |
-        if [[ -z "${{ inputs.config_path }}" && -z "${{ inputs.config }}" ]]; then
+        CONFIG_CONTENT="${{ inputs.config }}"
+        if [[ -z "${{ inputs.config_path }}" && -z "$CONFIG_CONTENT" ]]; then
           echo "::error::Either 'config_path' or 'config' input must be provided"
           exit 1
         fi
@@ -284,7 +285,8 @@ runs:
       if: steps.check_prs.outputs.skip_processing != 'true'
       shell: bash
       run: |
-        echo '${{ inputs.config }}' | docker run --rm -i \
+        CONFIG_CONTENT="${{ inputs.config }}"
+        echo "$CONFIG_CONTENT" | docker run --rm -i \
           -v "${{ github.workspace }}:/code" \
           ${{ steps.env_flags.outputs.flags }} \
           ghcr.io/aeliot-tm/todo-registrar:3.4.0 \
