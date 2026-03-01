@@ -70,7 +70,9 @@ runs:
     - name: Validate inputs
       shell: bash
       run: |
-        CONFIG_CONTENT="${{ inputs.config }}"
+        read -r -d '' CONFIG_CONTENT <<'EOF' || true
+        ${{ inputs.config }}
+        EOF
         if [[ -z "${{ inputs.config_path }}" && -z "$CONFIG_CONTENT" ]]; then
           echo "::error::Either 'config_path' or 'config' input must be provided"
           exit 1
@@ -285,13 +287,14 @@ runs:
       if: steps.check_prs.outputs.skip_processing != 'true'
       shell: bash
       run: |
-        CONFIG_CONTENT="${{ inputs.config }}"
-        echo "$CONFIG_CONTENT" | docker run --rm -i \
+        cat <<'EOF' | docker run --rm -i \
           -v "${{ github.workspace }}:/code" \
           ${{ steps.env_flags.outputs.flags }} \
           ghcr.io/aeliot-tm/todo-registrar:3.4.0 \
           ${{ steps.verbosity.outputs.flag }} \
           --config="${{ steps.config.outputs.path }}"
+        ${{ inputs.config }}
+        EOF
 
     - name: Checkout new branch
       if: steps.check_prs.outputs.skip_processing != 'true' && steps.branches.outputs.new_branch != steps.branches.outputs.current_branch
