@@ -148,6 +148,7 @@ If you have a configuration file at one of the default paths checked by todo-reg
 - uses: Aeliot-Tm/todo-registrar-action@1.6.0
   with:
     config_path: .todo-registrar.yaml
+    new_branch_name: todo-registrar
 ```
 
 ### With inline configuration
@@ -164,6 +165,7 @@ If you have a configuration file at one of the default paths checked by todo-reg
           service:
             personalAccessToken: ${{ secrets.GITHUB_TOKEN }}
             repository: "${{ github.repository }}"
+    new_branch_name: todo-registrar
 ```
 
 ### With environment variables
@@ -184,6 +186,7 @@ This works with both `config_path` and inline `config`:
     env_vars: |
       GITHUB_TOKEN
       GITHUB_REPO
+    new_branch_name: todo-registrar
 ```
 
 In your `.todo-registrar.yaml`, reference these variables using the `%env()%` syntax:
@@ -214,6 +217,7 @@ registrar:
           service:
             personalAccessToken: '%env(GITHUB_TOKEN)%'
             repository: '${{ github.repository }}'
+    new_branch_name: todo-registrar
 ```
 
 ### With automatic branch and pull request
