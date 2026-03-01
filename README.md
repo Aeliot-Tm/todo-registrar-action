@@ -163,8 +163,7 @@ If you have a configuration file at one of the default paths checked by todo-reg
         options:
           service:
             personalAccessToken: ${{ secrets.GITHUB_TOKEN }}
-            owner: ${{ github.repository_owner }}
-            repository: ${{ github.event.repository.name }}
+            repository: "${{ github.repository }}"
 ```
 
 ### With environment variables
@@ -179,13 +178,11 @@ This works with both `config_path` and inline `config`:
 - uses: Aeliot-Tm/todo-registrar-action@1.6.0
   env:
     GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
-    GITHUB_OWNER: ${{ github.repository_owner }}
-    GITHUB_REPO: ${{ github.event.repository.name }}
+    GITHUB_REPO: "${{ github.repository }}"
   with:
     config_path: .todo-registrar.yaml
     env_vars: |
       GITHUB_TOKEN
-      GITHUB_OWNER
       GITHUB_REPO
 ```
 
@@ -197,7 +194,6 @@ registrar:
   options:
     service:
       personalAccessToken: '%env(GITHUB_TOKEN)%'
-      owner: '%env(GITHUB_OWNER)%'
       repository: '%env(GITHUB_REPO)%'
 ```
 
@@ -207,12 +203,9 @@ registrar:
 - uses: Aeliot-Tm/todo-registrar-action@1.6.0
   env:
     GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
-    GITHUB_OWNER: ${{ github.repository_owner }}
-    GITHUB_REPO: ${{ github.event.repository.name }}
   with:
     env_vars: |
       GITHUB_TOKEN
-      GITHUB_OWNER
       GITHUB_REPO
     config: |
       registrar:
@@ -220,8 +213,7 @@ registrar:
         options:
           service:
             personalAccessToken: '%env(GITHUB_TOKEN)%'
-            owner: '%env(GITHUB_OWNER)%'
-            repository: '%env(GITHUB_REPO)%'
+            repository: '${{ github.repository }}'
 ```
 
 ### With automatic branch and pull request
