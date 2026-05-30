@@ -270,7 +270,7 @@ runs:
         read -r -d '' CONFIG_CONTENT <<'EOF' || true
         ${{ inputs.config }}
         EOF
-        
+
         if [[ -n "${{ inputs.config_path }}" ]]; then
           echo "path=/code/${{ inputs.config_path }}" >> $GITHUB_OUTPUT
           echo "flag=--config=/code/${{ inputs.config_path }}" >> $GITHUB_OUTPUT
@@ -293,7 +293,7 @@ runs:
           cat <<'EOF' | docker run --rm -i \
             -v "${{ github.workspace }}:/code" \
             ${{ steps.env_flags.outputs.flags }} \
-            ghcr.io/aeliot-tm/todo-registrar:3.4.0 \
+            ghcr.io/aeliot-tm/todo-registrar:3.4.5 \
             ${{ steps.verbosity.outputs.flag }} \
             ${{ steps.config.outputs.flag }}
         ${{ inputs.config }}
@@ -302,7 +302,7 @@ runs:
           docker run --rm \
             -v "${{ github.workspace }}:/code" \
             ${{ steps.env_flags.outputs.flags }} \
-            ghcr.io/aeliot-tm/todo-registrar:3.4.0 \
+            ghcr.io/aeliot-tm/todo-registrar:3.4.5 \
             ${{ steps.verbosity.outputs.flag }} \
             ${{ steps.config.outputs.flag }}
         fi
