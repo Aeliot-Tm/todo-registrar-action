@@ -1,0 +1,9 @@
+paths:
+  in: /code/.github
+registrar:
+  type: GitHub
+  options:
+    service:
+      personalAccessToken: dummy
+      owner: test
+      repository: test

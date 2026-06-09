@@ -289,22 +289,28 @@ runs:
       if: steps.check_prs.outputs.skip_processing != 'true'
       shell: bash
       run: |
+        REPORT_FLAGS="--report-format=json --report-path=/runner-temp/todo-registrar-report.json"
+
         if [[ "${{ steps.config.outputs.use_stdin }}" == "true" ]]; then
           cat <<'EOF' | docker run --rm -i \
             -v "${{ github.workspace }}:/code" \
+            -v "${RUNNER_TEMP}:/runner-temp" \
             ${{ steps.env_flags.outputs.flags }} \
             ghcr.io/aeliot-tm/todo-registrar:4.0.0 \
             ${{ steps.verbosity.outputs.flag }} \
-            ${{ steps.config.outputs.flag }}
+            ${{ steps.config.outputs.flag }} \
+            $REPORT_FLAGS
         ${{ inputs.config }}
         EOF
         else
           docker run --rm \
             -v "${{ github.workspace }}:/code" \
+            -v "${RUNNER_TEMP}:/runner-temp" \
             ${{ steps.env_flags.outputs.flags }} \
             ghcr.io/aeliot-tm/todo-registrar:4.0.0 \
             ${{ steps.verbosity.outputs.flag }} \
-            ${{ steps.config.outputs.flag }}
+            ${{ steps.config.outputs.flag }} \
+            $REPORT_FLAGS
         fi
 
     - name: Checkout new branch
@@ -333,10 +339,20 @@ runs:
       if: steps.check_prs.outputs.skip_processing != 'true' && steps.branches.outputs.should_create_pr == 'true' && steps.commit.outputs.has_changes == 'true'
       shell: bash
       env:
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+        GITHUB_SERVER_URL: ${{ github.server_url }}
         GITHUB_TOKEN: ${{ github.token }}
       run: |
+        PR_BODY_PATH="${RUNNER_TEMP}/pr-body.md"
+        REPORT_PATH="${RUNNER_TEMP}/todo-registrar-report.json"
+        COMMIT_SHA="$(git rev-parse HEAD)"
+        export COMMIT_SHA
+
+        "${{ github.action_path }}/scripts/build-pr-body.sh" "$REPORT_PATH" "$PR_BODY_PATH"
+
         gh pr create \
           -B ${{ steps.branches.outputs.target_branch }} \
           -H ${{ steps.branches.outputs.new_branch }} \
           --title '[TODO Registrar] automated registering of new TODOs' \
-          --body 'Created by Github action'
+          --body-file "$PR_BODY_PATH"

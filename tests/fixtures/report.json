@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "todos": {
+      "registered": 7,
+      "newIssues": 5,
+      "glued": 2
+    }
+  },
+  "files": [
+    {
+      "path": "src/Service/Baz.php",
+      "summary": {
+        "todos": {
+          "registered": 4
+        }
+      }
+    },
+    {
+      "path": "src/Service/Foo.php",
+      "summary": {
+        "todos": {
+          "registered": 3
+        }
+      }
+    },
+    {
+      "path": "src/Service/Bar.php",
+      "summary": {
+        "todos": {
+          "registered": 0
+        }
+      }
+    }
+  ]
+}
