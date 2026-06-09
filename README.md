@@ -58,7 +58,7 @@ Configure [workflow permissions](docs/permissions.md) in the repository settings
 2. [Inputs](docs/inputs.md) — Input reference and branch templates.
 3. [Using outputs](docs/outputs.md) — Conditional steps and job outputs.
 4. [Examples](docs/examples.md) — Workflow YAML for common setups.
-5. [Configuration](docs/configuration.md) — todo-registrar config and loading.
+5. [Configuration](docs/configuration.md) — TODO Registrar config and loading.
 6. [Permissions](docs/permissions.md) — Tokens, PAT, repository settings.
 7. [Pull request report](docs/pull-request-report.md) — PR body and processing report.
 

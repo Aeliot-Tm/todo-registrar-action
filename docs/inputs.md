@@ -12,7 +12,7 @@
 | `user_name` | No | `GitHub Action` | Git user name for commits |
 | `verbosity` | No | `normal` | Verbosity level: `quiet`, `normal`, `verbose`, `very-verbose`, `debug` |
 
-> \* If neither `config_path` nor `config` is provided, todo-registrar will check default configuration paths (see [Configuration](configuration.md)).
+> \* If neither `config_path` nor `config` is provided, TODO Registrar will check default configuration paths (see [Configuration](configuration.md)).
 >
 > \** You can define flexible PR workflows using branch name templates.
 > If both `new_branch_name` and `target_branch_name` are omitted or equal, no pull request is created,
@@ -54,11 +54,13 @@ The `check_opened` option helps avoid duplicate tickets. It is strongly recommen
 **Behavior:**
 
 - **`true` (exact match)**: Checks for existing open PRs from `new_branch_name` to `target_branch_name`. Skips processing if found.
-- **`like` (pattern match)**: Converts the `new_branch_name` template to a regex pattern and checks if any open PR's head branch matches. Useful when branch names contain dynamic parts like `{runner_id}` or `{random}`.
+- **`like` (pattern match)**: Converts the `new_branch_name` template to a regex pattern and checks if any open PR's
+  head branch matches. Useful when branch names contain dynamic parts like `{runner_id}` or `{random}`.
   - `{current}` → matches literal current branch name
   - `{runner_id}`, `{runnerId}` → matches any digits (`[0-9]+`)
   - `{random}`, `{random:N}` → matches alphanumeric characters (`[0-9a-z]+`)
-- **Branch behind check** (for both `true` and `like`): If `new_branch_name` differs from current branch and exists on remote, checks if current HEAD is behind the remote branch. Skips processing if behind to avoid push conflicts.
+- **Branch behind check** (for both `true` and `like`): If `new_branch_name` differs from current branch and exists on remote,
+  checks if current HEAD is behind the remote branch. Skips processing if behind to avoid push conflicts.
 
 > **NOTE:** When processing is skipped, the action still succeeds (does not fail) and adds a workflow annotation explaining why.
 >
@@ -69,4 +71,4 @@ The `check_opened` option helps avoid duplicate tickets. It is strongly recommen
 - [Examples](examples.md) — workflow YAML using these inputs
 - [Using outputs](outputs.md) — action outputs after a run
 - [How it works](how-it-works.md) — where inputs are applied in the workflow
-- [Configuration](configuration.md) — todo-registrar config file format
+- [Configuration](configuration.md) — TODO Registrar config format

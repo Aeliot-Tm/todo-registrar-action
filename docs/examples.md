@@ -4,7 +4,8 @@ Workflow snippets for common setups. Replace `@1.6.6` with the [release version]
 
 ## With default configuration paths
 
-If you have a configuration file at one of the default paths checked by todo-registrar (e.g., `.todo-registrar.yaml`, `.todo-registrar.yml`, etc.), you can omit both `config_path` and `config`:
+If you have a configuration file at one of the default paths checked by TODO Registrar
+(e.g., `.todo-registrar.yaml`, `.todo-registrar.yml`, etc.), you can omit both `config_path` and `config`:
 
 ```yaml
 - uses: Aeliot-Tm/todo-registrar-action@1.6.6
@@ -102,7 +103,8 @@ The action can automatically create a new branch, commit changes, push, and crea
     check_opened: 'like'
 ```
 
-This creates a branch like `main-todo-registrar-12345678` and uses pattern matching to detect any existing PR with a similar name pattern.
+This creates a branch like `main-todo-registrar-12345678` and uses pattern matching to detect
+any existing PR with a similar name pattern.
 
 **Git workflow behavior:**
 
@@ -129,4 +131,4 @@ See [Pull request body and processing report](pull-request-report.md) for PR tit
 - [Inputs](inputs.md) — input reference and branch templates
 - [Permissions](permissions.md) — required workflow and repository settings
 - [Using outputs](outputs.md) — react to `skipped` and `has_changes` in later steps
-- [Configuration](configuration.md) — todo-registrar config file format
+- [Configuration](configuration.md) — TODO Registrar config format

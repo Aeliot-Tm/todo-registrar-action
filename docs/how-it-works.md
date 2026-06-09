@@ -1,6 +1,8 @@
 # How it works
 
-TODO Registrar Action is a [composite action](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action) that wraps the [todo-registrar](https://github.com/Aeliot-Tm/todo-registrar) Docker container and adds Git workflow automation: branch handling, commits, push, and pull request creation.
+TODO Registrar Action is a [composite action](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action)
+that wraps the [TODO Registrar](https://github.com/Aeliot-Tm/todo-registrar) Docker container and adds Git workflow automation:
+branch handling, commits, push, and pull request creation.
 
 ## Overview
 
@@ -8,7 +10,7 @@ On each run, the action:
 
 1. Prepares runtime options (verbosity, environment variables, branch names).
 2. Optionally skips processing when a duplicate workflow would be redundant.
-3. Scans the repository with todo-registrar and updates TODO comments.
+3. Scans the repository with TODO Registrar and updates TODO comments.
 4. Commits and pushes changes when needed.
 5. Opens a pull request with a summary built from the processing report.
 
@@ -21,7 +23,7 @@ flowchart TD
   D -->|yes| E{Open PR or branch behind?}
   E -->|yes| S[Skip with workflow annotation]
   E -->|no| F
-  F --> G[Run todo-registrar in Docker]
+  F --> G[Run TODO Registrar in Docker]
   G --> H{new_branch ≠ current?}
   H -->|yes| I[Checkout new branch]
   H -->|no| J[Stay on current branch]
@@ -40,9 +42,10 @@ flowchart TD
 
 ### 1. Prepare runtime options
 
-**Map verbosity to flag** converts the `verbosity` input into a todo-registrar CLI flag (`-q`, `-v`, `-vv`, `-vvv`).
+**Map verbosity to flag** converts the `verbosity` input into a TODO Registrar CLI flag (`-q`, `-v`, `-vv`, `-vvv`).
 
-**Build environment flags** reads the `env_vars` input and builds Docker `-e` flags so selected workflow environment variables are passed into the container.
+**Build environment flags** reads the `env_vars` input and builds Docker `-e` flags
+so selected workflow environment variables are passed into the container.
 
 ### 2. Resolve branch names
 
@@ -57,7 +60,8 @@ Resolved values are exposed as outputs: `current_branch`, `template_branch`, `ne
 
 ### 3. Check whether to skip
 
-When `check_opened` is `true` or `like`, **Check for open pull requests and branch status** may set `skipped` to `true` and stop further steps.
+When `check_opened` is `true` or `like`, **Check for open pull requests and branch status**
+may set `skipped` to `true` and stop further steps.
 
 Processing is skipped when:
 
@@ -67,19 +71,20 @@ Processing is skipped when:
 | An open PR head branch matches the `new_branch_name` template pattern | `check_opened: like` | Skip |
 | The remote working branch is ahead of the current checkout | `true` or `like` | Skip |
 
-When skipped, the action **still succeeds** and adds a workflow annotation explaining why. See the [`check_opened` option](inputs.md#the-check_opened-option).
+When skipped, the action **still succeeds** and adds a workflow annotation explaining why.
+See the [`check_opened` option](inputs.md#the-check_opened-option).
 
 This step is omitted entirely when `check_opened: false`.
 
 ### 4. Prepare configuration
 
-**Compose config path and flag** chooses how todo-registrar receives its configuration:
+**Compose config path and flag** chooses how TODO Registrar receives its configuration:
 
 - `config_path` → `--config=/code/<path>`
 - inline `config` → `--config=STDIN`
 - neither → todo-registrar uses its [default configuration paths](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config.md)
 
-### 5. Run todo-registrar
+### 5. Run TODO Registrar
 
 **Run TODO Registrar** starts the Docker container:
 
@@ -99,7 +104,8 @@ The workspace is mounted at `/code`. The container:
 If processing was not skipped:
 
 1. **Checkout new branch** — creates and checks out the resolved branch when it differs from the current one.
-2. **Commit and push changes** — stages all changes, commits with the message `TODO-REGISTRAR: automated registering of new TODOs`, and pushes to `origin`.
+2. **Commit and push changes** — stages all changes, commits with the message
+   `TODO-REGISTRAR: automated registering of new TODOs`, and pushes to `origin`.
    - If there is nothing to commit, `has_changes` is set to `false` and push/PR steps are skipped.
 
 ### 7. Create a pull request

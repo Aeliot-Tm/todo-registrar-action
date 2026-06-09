@@ -11,7 +11,7 @@ All outputs are **strings**. In expressions and shell conditions, compare them t
 | `new_branch` | string | Always — resolved working branch name |
 | `target_branch` | string | Always — target branch for a pull request |
 | `skipped` | `'true'` / `'false'` | Always — `true` when processing was skipped (open PR, branch behind remote, etc.) |
-| `has_changes` | `'true'` / `'false'` | Always — `true` when todo-registrar changes were committed and pushed |
+| `has_changes` | `'true'` / `'false'` | Always — `true` when TODO Registrar changes were committed and pushed |
 
 Give the action step an `id` to read its outputs:
 
@@ -28,7 +28,8 @@ Reference outputs as `steps.<id>.outputs.<name>`, for example `steps.registrar.o
 
 ## React to skip
 
-When `skipped` is `true`, later action steps did not run (no Docker scan, no commit, no PR). The workflow still succeeds; check the workflow annotation for the reason.
+When `skipped` is `true`, later action steps did not run (no Docker scan, no commit, no PR).
+The workflow still succeeds; check the workflow annotation for the reason.
 
 ```yaml
 - name: Register TODOs
@@ -75,7 +76,7 @@ Typical outcomes:
 
 | `skipped` | `has_changes` | Meaning |
 |-----------|---------------|---------|
-| `true` | `false` | Processing blocked before todo-registrar ran |
+| `true` | `false` | Processing blocked before TODO Registrar ran |
 | `false` | `false` | Scan ran, but no TODO updates were committed |
 | `false` | `true` | TODO comments were updated and pushed |
 
@@ -109,7 +110,8 @@ Branch outputs are useful for logging, notifications, or custom automation:
     echo "PR target: ${{ steps.registrar.outputs.target_branch }}"
 ```
 
-When `new_branch` equals `target_branch`, the action commits to the current branch and does not open a pull request (even if `has_changes` is `true`).
+When `new_branch` equals `target_branch`, the action commits to the current branch and does not open
+a pull request (even if `has_changes` is `true`).
 
 ## Pass outputs to another job
 
