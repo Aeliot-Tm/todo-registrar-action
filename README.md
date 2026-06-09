@@ -246,6 +246,8 @@ This creates a branch like `main-todo-registrar-12345678` and uses pattern match
 - A pull request is created only when `new_branch_name` differs from `target_branch_name`
 - If there are no changes to commit, push and PR creation are skipped
 
+See [Pull request body and processing report](docs/pull-request-report.md) for PR title, summary metrics (Registered / New issues / Glued), and example descriptions.
+
 **Custom Git user configuration:**
 
 ```yaml
