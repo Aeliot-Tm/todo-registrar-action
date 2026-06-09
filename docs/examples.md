@@ -1,6 +1,6 @@
 # Examples
 
-Workflow snippets for common setups. Replace `@1.6.6` with the [release version](https://github.com/Aeliot-Tm/todo-registrar-action/releases) you want to pin.
+Workflow snippets for common setups. Replace `@2.0.0` with the [release version](https://github.com/Aeliot-Tm/todo-registrar-action/releases) you want to pin.
 
 ## With default configuration paths
 
@@ -8,7 +8,7 @@ If you have a configuration file at one of the default paths checked by TODO Reg
 (e.g., `.todo-registrar.yaml`, `.todo-registrar.yml`, etc.), you can omit both `config_path` and `config`:
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
+- uses: Aeliot-Tm/todo-registrar-action@2.0.0
   with:
     new_branch_name: todo-registrar
 ```
@@ -16,7 +16,7 @@ If you have a configuration file at one of the default paths checked by TODO Reg
 ## With configuration file
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
+- uses: Aeliot-Tm/todo-registrar-action@2.0.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar
@@ -25,7 +25,7 @@ If you have a configuration file at one of the default paths checked by TODO Reg
 ## With inline configuration
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
+- uses: Aeliot-Tm/todo-registrar-action@2.0.0
   with:
     config: |
       paths:
@@ -48,7 +48,7 @@ This works with both `config_path` and inline `config`.
 **With config file:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
+- uses: Aeliot-Tm/todo-registrar-action@2.0.0
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     GITHUB_REPO: "${{ github.repository }}"
@@ -74,7 +74,7 @@ registrar:
 **With inline config:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
+- uses: Aeliot-Tm/todo-registrar-action@2.0.0
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   with:
@@ -96,7 +96,7 @@ registrar:
 The action can automatically create a new branch, commit changes, push, and create a pull request:
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
+- uses: Aeliot-Tm/todo-registrar-action@2.0.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: '{current}-todo-registrar-{runner_id}'
@@ -118,7 +118,7 @@ See [Pull request body and processing report](pull-request-report.md) for PR tit
 ## Custom Git user configuration
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
+- uses: Aeliot-Tm/todo-registrar-action@2.0.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar

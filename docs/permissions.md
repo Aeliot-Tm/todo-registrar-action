@@ -35,7 +35,7 @@ you must use a separate personal access token (PAT) or a GitHub App token instea
 **Example with a separate token:**
 
 ```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
+- uses: Aeliot-Tm/todo-registrar-action@2.0.0
   env:
     GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
   with:
