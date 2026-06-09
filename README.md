@@ -24,6 +24,8 @@ duplicate tickets without an external database — everything is stored in your 
 
 > See the latest **benchmark [here](https://github.com/Aeliot-Tm/todo-registrar-benchmark/blob/main/benchmark.md)**.
 
+See [How it works](docs/how-it-works.md) for a step-by-step description of the action workflow, skip conditions, and when a pull request is created.
+
 ## Usage
 
 Create a workflow file at `.github/workflows/todo-registrar.yaml` with the following contents:
