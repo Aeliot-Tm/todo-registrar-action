@@ -1,4 +1,4 @@
-name: Test Branch Templates
+name: Automated Testing
 
 on:
   push:
