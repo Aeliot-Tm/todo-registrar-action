@@ -1,6 +1,6 @@
 ![logo.svg](docs/logo.svg)
 
-[![GitHub Release](https://img.shields.io/github/v/release/Aeliot-Tm/todo-registrar-action?label=Release)](https://packagist.org/packages/aeliot/todo-registrar-action)
+[![GitHub Release](https://img.shields.io/github/v/release/Aeliot-Tm/todo-registrar-action?label=Release)](https://github.com/Aeliot-Tm/todo-registrar-action/releases)
 [![GitHub License](https://img.shields.io/github/license/Aeliot-Tm/todo-registrar-action?label=License)](LICENSE)
 
 # TODO Registrar Action
