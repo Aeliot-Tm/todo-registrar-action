@@ -172,4 +172,4 @@ Write a short summary to the Actions run page:
 
 - [How it works](how-it-works.md) — when outputs are set during the workflow
 - [Pull request body and processing report](pull-request-report.md) — PR summary when changes are pushed to a separate branch
-- [Inputs reference](../README.md#inputs) — options that affect branch and skip behavior
+- [Inputs](inputs.md) — options that affect branch and skip behavior

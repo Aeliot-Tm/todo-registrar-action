@@ -180,4 +180,4 @@ The logo URL passed to the script defaults to the action repository logo; a thir
 
 - [How it works](how-it-works.md) — when the report is written and the PR is created
 - [Using outputs](outputs.md) — `has_changes` and branch outputs after registration
-- [Automatic branch and pull request](../README.md#with-automatic-branch-and-pull-request) — workflow example
+- [Examples](examples.md#with-automatic-branch-and-pull-request) — workflow with automatic PR

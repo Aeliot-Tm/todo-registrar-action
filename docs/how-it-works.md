@@ -67,7 +67,7 @@ Processing is skipped when:
 | An open PR head branch matches the `new_branch_name` template pattern | `check_opened: like` | Skip |
 | The remote working branch is ahead of the current checkout | `true` or `like` | Skip |
 
-When skipped, the action **still succeeds** and adds a workflow annotation explaining why. See the [`check_opened` option](../README.md#the-check_opened-option) in the README.
+When skipped, the action **still succeeds** and adds a workflow annotation explaining why. See the [`check_opened` option](inputs.md#the-check_opened-option).
 
 This step is omitted entirely when `check_opened: false`.
 
@@ -127,9 +127,10 @@ See [Pull request body and processing report](pull-request-report.md) for layout
 
 ## Related documentation
 
-- [Usage and examples](../README.md#usage)
-- [Inputs and outputs](../README.md#inputs)
+- [Examples](examples.md)
+- [Inputs](inputs.md)
 - [Using outputs](outputs.md)
 - [Pull request body and processing report](pull-request-report.md)
-- [Permissions](../README.md#permissions)
-- [todo-registrar configuration](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config_yaml.md)
+- [Permissions](permissions.md)
+- [Configuration](configuration.md)
+- [TODO Registrar configuration](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config_yaml.md)
