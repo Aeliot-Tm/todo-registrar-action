@@ -1,5 +1,5 @@
 name: 'TODO Registrar'
-description: 'Find TODO comments in code and create issues in issue tracker using todo-registrar'
+description: 'Find TODO comments in code and create issues in issue tracker using TODO Registrar'
 author: 'Aeliot-Tm'
 
 branding:

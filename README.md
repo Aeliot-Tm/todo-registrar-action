@@ -8,7 +8,7 @@
 
 GitHub Action for finding TODO comments in code and automatically creating issues in your issue tracker.
 
-This action uses Docker container of **[TODO registrar](https://github.com/Aeliot-Tm/todo-registrar)**.
+This action runs the Docker container from **[TODO registrar](https://github.com/Aeliot-Tm/todo-registrar)**.
 
 ### Features
 
@@ -17,22 +17,23 @@ This action uses Docker container of **[TODO registrar](https://github.com/Aelio
 - Injects issue IDs back into TODO comments to prevent duplicates.
 - Supports inline configuration for flexible issue customization.
 
-Action adds numbers of ticket inside TODOs in the code and makes commit. It permits to avoid creation
-of duplicated tickets, and you don't need in 'supporting database'. All saved in your repository.
+The action adds issue numbers to TODO comments in the code and commits the changes. This helps avoid
+duplicate tickets without an external database — everything is stored in your repository.
 
 ![detect_register_inject.png](docs/detect_register_inject.png)
 
-> See latest **benchmark [here](https://github.com/Aeliot-Tm/todo-registrar-benchmark/blob/main/benchmark.md)**.
+> See the latest **benchmark [here](https://github.com/Aeliot-Tm/todo-registrar-benchmark/blob/main/benchmark.md)**.
 
-## Usage
+## Quick start
 
-Create a workflow file in your `.github/workflows/todo-registrar.yaml` directory with the following contents:
+Create a workflow file at `.github/workflows/todo-registrar.yaml`:
+
 ```yaml
 name: TODO registrar
 
 on:
   push:
-    branches: [ "main" ] # or "master" or "develop" (depends on your repository)
+    branches: [ "main" ] # or "master" or "develop"
 
 permissions:
   contents: write
@@ -40,7 +41,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  test:
+  register:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,247 +50,19 @@ jobs:
           new_branch_name: todo-registrar
 ```
 
-## Inputs
+Configure [workflow permissions](docs/permissions.md) in the repository settings before the first run.
 
-| Input | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `check_opened` | No | `true` | Check for open PRs: `true` (exact match), `like` (pattern match for templates), `false` (skip check) |
-| `config` | No* | | Inline YAML configuration |
-| `config_path` | No* | | Path to configuration file (relative to workspace) |
-| `env_vars` | No | | Environment variable names to pass to container (newline or space separated) |
-| `new_branch_name` | No** | | Branch name or template with placeholders. If empty - stay on current branch |
-| `target_branch_name` | No** | | Target branch for pull request. If empty - use current branch |
-| `user_email` | No | `action@github.com` | Git user email for commits |
-| `user_name` | No | `GitHub Action` | Git user name for commits |
-| `verbosity` | No | `normal` | Verbosity level: `quiet`, `normal`, `verbose`, `very-verbose`, `debug` |
+## Documentation
 
-> \* If neither `config_path` nor `config` is provided, todo-registrar will check default configuration paths (see [configuration loading documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config.md)).
->
-> \** You may create flexible scenarios for the maintaining of PRs' with branch names.
-> If omitted both `new_branch_name` and `target_branch_name` or they are the same then PR will not be created
-> but changes will be pushed.
+1. [How it works](docs/how-it-works.md) — Workflow steps, skip logic, outcomes.
+2. [Inputs](docs/inputs.md) — Input reference and branch templates.
+3. [Using outputs](docs/outputs.md) — Conditional steps and job outputs.
+4. [Examples](docs/examples.md) — Workflow YAML for common setups.
+5. [Configuration](docs/configuration.md) — TODO Registrar config and loading.
+6. [Permissions](docs/permissions.md) — Tokens, PAT, repository settings.
+7. [Pull request report](docs/pull-request-report.md) — PR body and processing report.
 
-### Option new_branch_name
+## External documentation
 
-The `new_branch_name` option supports template placeholders that are replaced at runtime. All placeholders are **case-insensitive**.
-
-| Placeholder | Description |
-|-------------|-------------|
-| `{current}` | Current branch name |
-| `{runner_id}`, `{runnerId}` | GitHub workflow run ID (`github.run_id`) |
-| `{random}` | Random alphanumeric string (5 characters by default) |
-| `{random:N}` | Random alphanumeric string of N characters (e.g., `{random:10}`) |
-
-**Examples of template resolving:**
-
-| Template | Resolved Branch Name |
-|---|---|
-| `{current}-todo-registrar-{random}` | `main-todo-registrar-a1b2c` |
-| `{current}-{runner_id}-todo-registrar` | `main-12345678-todo-registrar` |
-| `todo-registrar-{random:10}` | `todo-registrar-a1b2c3d4e5` |
-
-> **Note:** The typo `{curent}` (single 'r') is also supported but will produce a warning.
-
-### Option check_opened
-
-Option `check_opened` is important to avoid creation of duplicated tickets. It is strongly recommended to use it.
-
-**Values:**
-
-| Value | Description |
-|-------|-------------|
-| `true` | Exact match - checks for open PRs with exact branch name |
-| `like` | Pattern match - checks for open PRs matching the template pattern |
-| `false` | Skip check - no PR checking performed |
-
-**Behavior:**
-
-- **`true` (exact match)**: Checks for existing open PRs from `new_branch_name` to `target_branch_name`. Skips processing if found.
-- **`like` (pattern match)**: Converts the `new_branch_name` template to a regex pattern and checks if any open PR's head branch matches. Useful when branch names contain dynamic parts like `{runner_id}` or `{random}`.
-  - `{current}` → matches literal current branch name
-  - `{runner_id}`, `{runnerId}` → matches any digits (`[0-9]+`)
-  - `{random}`, `{random:N}` → matches alphanumeric characters (`[0-9a-z]+`)
-- **Branch behind check** (for both `true` and `like`): If `new_branch_name` differs from current branch and exists on remote, checks if current HEAD is behind the remote branch. Skips processing if behind to avoid push conflicts.
-
-> **NOTE:** action finishes successful (not fail) when skipped but produces 'Annotation' with the reason.
->
-> ![annotation.png](docs/annotation.png)
-
-## Outputs
-
-| Output | Description |
-|--------|-------------|
-| `current_branch` | Current branch name |
-| `has_changes` | Whether there were changes to commit (`true`/`false`) |
-| `new_branch` | Resolved branch name after placeholder substitution |
-| `skipped` | Whether processing was skipped (`true`/`false`) |
-| `template_branch` | Original template before placeholder resolution |
-| `target_branch` | Target branch for pull request |
-
-## Configuration
-
-For detailed description of configuration options, see the [TODO registrar documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config_yaml.md).
-And pay attention [to the loading of configuration file](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config.md).
-
-## Examples
-
-### With default configuration paths
-
-If you have a configuration file at one of the default paths checked by todo-registrar (e.g., `.todo-registrar.yaml`, `.todo-registrar.yml`, etc.), you can omit both `config_path` and `config`:
-
-```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
-  with:
-    new_branch_name: todo-registrar
-```
-
-### With configuration file
-
-```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
-  with:
-    config_path: .todo-registrar.yaml
-    new_branch_name: todo-registrar
-```
-
-### With inline configuration
-
-```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
-  with:
-    config: |
-      paths:
-        in: /code/src
-      registrar:
-        type: GitHub
-        options:
-          service:
-            personalAccessToken: ${{ secrets.GITHUB_TOKEN }}
-            repository: "${{ github.repository }}"
-    new_branch_name: todo-registrar
-```
-
-### With environment variables
-
-Use `env_vars` to securely pass environment variables (e.g., secrets) into the container.
-Variables are defined in the standard `env` section and their names are listed in `env_vars`.
-This works with both `config_path` and inline `config`:
-
-**With config file:**
-
-```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    GITHUB_REPO: "${{ github.repository }}"
-  with:
-    config_path: .todo-registrar.yaml
-    env_vars: |
-      GITHUB_TOKEN
-      GITHUB_REPO
-    new_branch_name: todo-registrar
-```
-
-In your `.todo-registrar.yaml`, reference these variables using the `%env()%` syntax:
-
-```yaml
-registrar:
-  type: GitHub
-  options:
-    service:
-      personalAccessToken: '%env(GITHUB_TOKEN)%'
-      repository: '%env(GITHUB_REPO)%'
-```
-
-**With inline config:**
-
-```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  with:
-    env_vars: |
-      GITHUB_TOKEN
-      GITHUB_REPO
-    config: |
-      registrar:
-        type: GitHub
-        options:
-          service:
-            personalAccessToken: '%env(GITHUB_TOKEN)%'
-            repository: '${{ github.repository }}'
-    new_branch_name: todo-registrar
-```
-
-### With automatic branch and pull request
-
-The action can automatically create a new branch, commit changes, push, and create a pull request:
-
-```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
-  with:
-    config_path: .todo-registrar.yaml
-    new_branch_name: '{current}-todo-registrar-{runner_id}'
-    check_opened: 'like'
-```
-
-This creates a branch like `main-todo-registrar-12345678` and uses pattern matching to detect any existing PR with a similar name pattern.
-
-**Git workflow behavior:**
-
-- If `new_branch_name` is not provided, changes are committed to the current branch
-- If `target_branch_name` is not provided, it defaults to the current branch
-- Pull request is created only when `new_branch_name` differs from `target_branch_name`
-- If there are no changes to commit, push and PR creation are skipped
-
-**Custom git user configuration:**
-
-```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
-  with:
-    config_path: .todo-registrar.yaml
-    new_branch_name: todo-registrar
-    user_name: 'My Bot'
-    user_email: 'bot@example.com'
-```
-
-## Permissions
-
-The first, config permissions of workflow:
-```yaml
-
-permissions:
-  contents: write         # required: allows commiting and pushing
-  pull-requests: write    # required: allows creating of PR
-  issues: write           # optional: allows creating of Issues on GitHub
-```
-
-The second, allow creation of PR by Action in the Setting of Repository:
-1. Go to your repository on GitHub
-2. **Settings** → **Actions** → **General**
-3. Scroll down to the "**Workflow permissions**" section
-4. Check "**Allow GitHub Actions to create and approve pull requests**"
-5. Optional. Select "**Read and write permissions**" to allow creation of issues in the repository.
-6. Click **Save**
-
-### Triggering workflows for issues
-
-By default, the action uses the standard runner token (`secrets.GITHUB_TOKEN`). However, events created
-with this token (such as issue creation) **will not trigger other GitHub Actions workflows**.
-This is a [GitHub limitation](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)
-designed to prevent recursive workflow runs.
-
-If you need issue-related workflows to be triggered automatically (e.g., labeling, notifications, project board automation),
-you must use a separate personal access token (PAT) or a GitHub App token instead of the default one.
-
-**Example with a separate token:**
-
-```yaml
-- uses: Aeliot-Tm/todo-registrar-action@1.6.6
-  env:
-    GITHUB_TOKEN: ${{ secrets.TODO_REGISTRAR_TOKEN }}
-  with:
-    config_path: .todo-registrar.yaml
-    env_vars: GITHUB_TOKEN
-    new_branch_name: todo-registrar
-```
+- [TODO Registrar](https://github.com/Aeliot-Tm/todo-registrar) — scanner and issue tracker integration.
+- [Benchmark results](https://github.com/Aeliot-Tm/todo-registrar-benchmark/blob/main/benchmark.md) — performance comparisons.
