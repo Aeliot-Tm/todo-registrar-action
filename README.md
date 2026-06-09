@@ -128,6 +128,8 @@ The `check_opened` option helps avoid duplicate tickets. It is strongly recommen
 | `template_branch` | Original template before placeholder resolution |
 | `target_branch` | Target branch for pull request |
 
+See [Using outputs](docs/outputs.md) for practical examples: conditional steps, job outputs, and workflow summaries.
+
 ## Configuration
 
 For a detailed description of configuration options, see the [TODO registrar documentation](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/config/general_config_yaml.md).
