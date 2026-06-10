@@ -23,6 +23,8 @@ duplicate tickets without an external database — everything is stored in your 
 ![detect_register_inject.png](docs/detect_register_inject.png)
 
 > See the latest **benchmark [here](https://github.com/Aeliot-Tm/todo-registrar-benchmark/blob/main/benchmark.md)**.
+>
+> According to benchmark **TODO Registrar became quicker 20% since version 4.0.0**.
 
 ## Quick start
 
