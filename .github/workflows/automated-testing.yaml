@@ -9,7 +9,7 @@ jobs:
     name: "Test {current} placeholder"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run action with {current} template
         id: action
@@ -48,7 +48,7 @@ jobs:
     name: "Test {runner_id} placeholder"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run action with {runner_id} template
         id: action
@@ -87,7 +87,7 @@ jobs:
     name: "Test {random} placeholder"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run action with {random} template
         id: action
@@ -125,7 +125,7 @@ jobs:
     name: "Test {random:N} placeholder"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run action with {random:10} template
         id: action
@@ -163,7 +163,7 @@ jobs:
     name: "Test case insensitivity"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run action with uppercase placeholders
         id: action
@@ -201,7 +201,7 @@ jobs:
     name: "Test {curent} typo"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run action with {curent} typo
         id: action
@@ -239,7 +239,7 @@ jobs:
     name: "Test complex template"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run action with complex template
         id: action
@@ -281,7 +281,7 @@ jobs:
     name: "Test {runnerId} camelCase"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run action with {runnerId} camelCase
         id: action
@@ -319,7 +319,7 @@ jobs:
     name: "Test report and PR body formation"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Generate processing report
         id: report

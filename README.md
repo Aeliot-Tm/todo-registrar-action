@@ -46,7 +46,7 @@ jobs:
   register:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: Aeliot-Tm/todo-registrar-action@2.0.0
         with:
           new_branch_name: todo-registrar
