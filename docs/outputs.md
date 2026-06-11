@@ -126,7 +126,7 @@ jobs:
       has_changes: ${{ steps.registrar.outputs.has_changes }}
       new_branch: ${{ steps.registrar.outputs.new_branch }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Register TODOs
         id: registrar
