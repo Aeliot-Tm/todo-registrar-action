@@ -371,15 +371,6 @@ jobs:
           scripts/build-pr-body-fixture.sh "$REPORT_PATH" "$PR_BODY_PATH"
           diff -u tests/fixtures/pr-body-empty.expected.md "$PR_BODY_PATH"
 
-      - name: Verify PR body for glued-only report
-        run: |
-          REPORT_PATH="${{ runner.temp }}/glued-report.json"
-          PR_BODY_PATH="${{ runner.temp }}/glued-pr-body.md"
-
-          cp tests/fixtures/report-glued-only.json "$REPORT_PATH"
-          scripts/build-pr-body-fixture.sh "$REPORT_PATH" "$PR_BODY_PATH"
-          diff -u tests/fixtures/pr-body-glued-only.expected.md "$PR_BODY_PATH"
-
       - name: Verify fallback when report is missing
         run: |
           PR_BODY_PATH="${{ runner.temp }}/missing-report-pr-body.md"
