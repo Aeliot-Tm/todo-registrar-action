@@ -103,15 +103,6 @@ The body is built from HTML tables and Markdown collapsible sections (`<details>
 The logo and main content share one table. The logo links to the
 [TODO Registrar Action](https://github.com/marketplace/actions/todo-registrar) on the GitHub Marketplace.
 
-| Condition | Layout |
-|-----------|--------|
-| `registered > 0` | Logo on the left, metrics table on the right (**Registered**, **New issues**, **Glued**) |
-| `registered == 0` | Logo on the left, `[!TIP]` callout on the right |
-| Report file missing | Logo on the left, `[!WARNING]` callout on the right |
-
-When nothing was registered, the callout includes the scanned file count when
-`summary.files.analyzed` is available.
-
 ### Collapsible sections
 
 When `registered > 0`, up to three accordions may follow the header table, in this order:
