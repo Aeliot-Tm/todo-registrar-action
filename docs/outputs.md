@@ -19,7 +19,7 @@ Give the action step an `id` to read its outputs:
 ```yaml
 - name: Register TODOs
   id: registrar
-  uses: Aeliot-Tm/todo-registrar-action@2.0.0
+  uses: Aeliot-Tm/todo-registrar-action@2.1.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar
@@ -35,7 +35,7 @@ The workflow still succeeds; check the workflow annotation for the reason.
 ```yaml
 - name: Register TODOs
   id: registrar
-  uses: Aeliot-Tm/todo-registrar-action@2.0.0
+  uses: Aeliot-Tm/todo-registrar-action@2.1.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: '{current}-todo-registrar-{runner_id}'
@@ -57,7 +57,7 @@ Use `has_changes` to run follow-up steps only when files were updated and pushed
 ```yaml
 - name: Register TODOs
   id: registrar
-  uses: Aeliot-Tm/todo-registrar-action@2.0.0
+  uses: Aeliot-Tm/todo-registrar-action@2.1.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar
@@ -84,7 +84,7 @@ Typical outcomes:
 ```yaml
 - name: Register TODOs
   id: registrar
-  uses: Aeliot-Tm/todo-registrar-action@2.0.0
+  uses: Aeliot-Tm/todo-registrar-action@2.1.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar
@@ -140,7 +140,7 @@ jobs:
 
       - name: Register TODOs
         id: registrar
-        uses: Aeliot-Tm/todo-registrar-action@2.0.0
+        uses: Aeliot-Tm/todo-registrar-action@2.1.0
         with:
           config_path: .todo-registrar.yaml
           new_branch_name: todo-registrar
@@ -160,7 +160,7 @@ Write a short summary to the Actions run page:
 ```yaml
 - name: Register TODOs
   id: registrar
-  uses: Aeliot-Tm/todo-registrar-action@2.0.0
+  uses: Aeliot-Tm/todo-registrar-action@2.1.0
   with:
     config_path: .todo-registrar.yaml
     new_branch_name: todo-registrar
