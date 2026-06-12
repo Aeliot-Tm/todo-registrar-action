@@ -5,7 +5,6 @@ REPORT_PATH="${1:?report path required}"
 PR_BODY_PATH="${2:?PR body output path required}"
 LOGO_URL="${3:-https://raw.githubusercontent.com/Aeliot-Tm/todo-registrar-action/main/docs/logo-in-comment.svg}"
 ACTION_MARKETPLACE_URL="https://github.com/marketplace/actions/todo-registrar"
-ACTION_LINK="[TODO Registrar Action](https://github.com/Aeliot-Tm/todo-registrar-action)"
 
 pluralize() {
   local count="$1"
@@ -111,23 +110,6 @@ write_metric_legend() {
   echo "</details>"
 }
 
-write_alert() {
-  local registered="$1"
-  local new_issues="$2"
-  local glued="$3"
-
-  if [[ "$new_issues" -gt 0 ]]; then
-    echo "> [!NOTE]"
-    echo "> Automated registration of TODO comments by ${ACTION_LINK}."
-  elif [[ "$glued" -gt 0 ]]; then
-    echo "> [!IMPORTANT]"
-    echo "> All registered TODOs were linked to existing issues. No new tracker tickets were created."
-  else
-    echo "> [!NOTE]"
-    echo "> Automated registration of TODO comments by ${ACTION_LINK}."
-  fi
-}
-
 {
   if [[ -f "$REPORT_PATH" ]]; then
     read -r REGISTERED NEW_ISSUES GLUED <<< "$(jq -r '.summary.todos | "\(.registered) \(.newIssues) \(.glued)"' "$REPORT_PATH")"
@@ -138,8 +120,6 @@ write_alert() {
       write_empty_header "$ANALYZED"
     else
       write_metrics_header "$REGISTERED" "$NEW_ISSUES" "$GLUED"
-      echo ""
-      write_alert "$REGISTERED" "$NEW_ISSUES" "$GLUED"
 
       CREATED_ISSUES_COUNT="$(jq '[.issues[]?] | length' "$REPORT_PATH")"
       if [[ "$CREATED_ISSUES_COUNT" -gt 0 ]]; then

@@ -14,9 +14,6 @@
 </tr>
 </table>
 
-> [!NOTE]
-> Automated registration of TODO comments by [TODO Registrar Action](https://github.com/Aeliot-Tm/todo-registrar-action).
-
 <details>
 <summary><strong>Created issues</strong> (5)</summary>
 
