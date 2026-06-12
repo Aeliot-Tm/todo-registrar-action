@@ -19,20 +19,76 @@ pluralize() {
   fi
 }
 
+write_logo_linked() {
+  echo "<a href=\"${ACTION_MARKETPLACE_URL}\"><img src=\"${LOGO_URL}\" alt=\"TODO Registrar\" /></a>"
+}
+
+write_empty_header() {
+  local analyzed="$1"
+
+  echo '<table>'
+  echo '<tr>'
+  echo '<td align="center" valign="middle" width="40%">'
+  write_logo_linked
+  echo '</td>'
+  echo '<td valign="middle">'
+  echo ""
+  echo "> [!TIP]"
+  if [[ -n "$analyzed" ]]; then
+    echo "> No new TODOs to register. Scanned **${analyzed}** $(pluralize "$analyzed" "file" "files"), nothing changed."
+  else
+    echo "> No new TODOs to register."
+  fi
+  echo ""
+  echo '</td>'
+  echo '</tr>'
+  echo '</table>'
+}
+
+write_metrics_header() {
+  local registered="$1"
+  local new_issues="$2"
+  local glued="$3"
+
+  echo '<table>'
+  echo '<tr>'
+  echo '<td rowspan="2" align="center" valign="middle" width="40%">'
+  write_logo_linked
+  echo '</td>'
+  echo '<th align="center">Registered</th>'
+  echo '<th align="center">New issues</th>'
+  echo '<th align="center">Glued</th>'
+  echo '</tr>'
+  echo '<tr>'
+  echo "<td align=\"center\"><strong>${registered}</strong></td>"
+  echo "<td align=\"center\"><strong>${new_issues}</strong></td>"
+  echo "<td align=\"center\"><strong>${glued}</strong></td>"
+  echo '</tr>'
+  echo '</table>'
+}
+
+write_missing_report_header() {
+  echo '<table>'
+  echo '<tr>'
+  echo '<td align="center" valign="middle" width="40%">'
+  write_logo_linked
+  echo '</td>'
+  echo '<td valign="middle">'
+  echo ""
+  echo "> [!WARNING]"
+  echo "> Processing report is not available."
+  echo ""
+  echo '</td>'
+  echo '</tr>'
+  echo '</table>'
+}
+
 write_alert() {
   local registered="$1"
   local new_issues="$2"
   local glued="$3"
-  local analyzed="$4"
 
-  if [[ "$registered" -eq 0 ]]; then
-    echo "> [!TIP]"
-    if [[ -n "$analyzed" ]]; then
-      echo "> No new TODOs to register. Scanned **${analyzed}** $(pluralize "$analyzed" "file" "files"), nothing changed."
-    else
-      echo "> No new TODOs to register."
-    fi
-  elif [[ "$new_issues" -gt 0 ]]; then
+  if [[ "$new_issues" -gt 0 ]]; then
     echo "> [!NOTE]"
     echo "> Automated registration of TODO comments by ${ACTION_LINK}."
   elif [[ "$glued" -gt 0 ]]; then
@@ -64,49 +120,38 @@ write_footer() {
 }
 
 {
-  echo '<div align="center">'
-  echo ""
-  echo "[![TODO Registrar](${LOGO_URL})](${ACTION_MARKETPLACE_URL})"
-  echo ""
-  echo '</div>'
-  echo ""
-
   if [[ -f "$REPORT_PATH" ]]; then
     read -r REGISTERED NEW_ISSUES GLUED <<< "$(jq -r '.summary.todos | "\(.registered) \(.newIssues) \(.glued)"' "$REPORT_PATH")"
     ANALYZED="$(jq -r '.summary.files.analyzed // empty' "$REPORT_PATH")"
     UPDATED_FILES="$(jq '[.files[]? | select(.summary.todos.registered > 0)] | length' "$REPORT_PATH")"
 
-    write_alert "$REGISTERED" "$NEW_ISSUES" "$GLUED" "$ANALYZED"
-    echo ""
-    echo "---"
-    echo ""
-    echo "## Processing summary"
-    echo ""
+    if [[ "$REGISTERED" -eq 0 ]]; then
+      write_empty_header "$ANALYZED"
+    else
+      write_metrics_header "$REGISTERED" "$NEW_ISSUES" "$GLUED"
+      echo ""
+      write_alert "$REGISTERED" "$NEW_ISSUES" "$GLUED"
+      echo ""
+      echo "- **Registered** — TODO comments that received an issue key"
+      echo "- **New issues** — new issues created in the tracker"
+      echo "- **Glued** — TODOs that reused an existing issue key"
 
-    echo "| Registered | New issues | Glued |"
-    echo "| :--------: | :--------: | :---: |"
-    echo "| **${REGISTERED}** | **${NEW_ISSUES}** | **${GLUED}** |"
-    echo ""
-    echo "- **Registered** — TODO comments that received an issue key"
-    echo "- **New issues** — new issues created in the tracker"
-    echo "- **Glued** — TODOs that reused an existing issue key"
-
-    if [[ "$UPDATED_FILES" -gt 0 ]]; then
-      echo ""
-      echo "<details>"
-      echo "<summary><strong>Updated files</strong> (${UPDATED_FILES})</summary>"
-      echo ""
-      echo "| File | Registered TODOs |"
-      echo "|------|-----------------:|"
-      jq -r '.files | map(select(.summary.todos.registered > 0)) | sort_by(-.summary.todos.registered) | .[] | "| `\(.path)` | \(.summary.todos.registered) |"' "$REPORT_PATH"
-      echo ""
-      echo "</details>"
+      if [[ "$UPDATED_FILES" -gt 0 ]]; then
+        echo ""
+        echo "<details>"
+        echo "<summary><strong>Updated files</strong> (${UPDATED_FILES})</summary>"
+        echo ""
+        echo "| File | Registered TODOs |"
+        echo "|------|-----------------:|"
+        jq -r '.files | map(select(.summary.todos.registered > 0)) | sort_by(-.summary.todos.registered) | .[] | "| `\(.path)` | \(.summary.todos.registered) |"' "$REPORT_PATH"
+        echo ""
+        echo "</details>"
+      fi
     fi
 
     write_footer
   else
-    echo "> [!WARNING]"
-    echo "> Processing report is not available."
+    write_missing_report_header
     write_footer
   fi
 } > "$PR_BODY_PATH"

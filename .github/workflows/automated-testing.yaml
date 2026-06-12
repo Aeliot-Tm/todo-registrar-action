@@ -350,14 +350,13 @@ jobs:
 
           scripts/build-pr-body.sh "${{ steps.report.outputs.path }}" "$PR_BODY_PATH"
 
-          grep -Fq '![TODO Registrar]' "$PR_BODY_PATH"
+          grep -Fq 'alt="TODO Registrar"' "$PR_BODY_PATH"
           grep -q '^> \[!TIP\]' "$PR_BODY_PATH"
           grep -q 'No new TODOs to register' "$PR_BODY_PATH"
           grep -q "> Run by \[workflow #${GITHUB_RUN_ID}\]" "$PR_BODY_PATH"
           grep -Fq "[view changes](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${COMMIT_SHA})" "$PR_BODY_PATH"
-          grep -q '^## Processing summary$' "$PR_BODY_PATH"
-          grep -q '| Registered | New issues | Glued |' "$PR_BODY_PATH"
-          grep -q '\*\*Registered\*\* — TODO comments that received an issue key' "$PR_BODY_PATH"
+          grep -q '<table>' "$PR_BODY_PATH"
+          ! grep -q '<th align="center">Registered</th>' "$PR_BODY_PATH"
           ! grep -q '| Total |' "$PR_BODY_PATH"
           ! grep -q 'Ignored (already had issue key)' "$PR_BODY_PATH"
 
