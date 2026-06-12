@@ -296,7 +296,7 @@ runs:
             -v "${{ github.workspace }}:/code" \
             -v "${RUNNER_TEMP}:/runner-temp" \
             ${{ steps.env_flags.outputs.flags }} \
-            ghcr.io/aeliot-tm/todo-registrar:4.0.0 \
+            ghcr.io/aeliot-tm/todo-registrar:4.1.0 \
             ${{ steps.verbosity.outputs.flag }} \
             ${{ steps.config.outputs.flag }} \
             $REPORT_FLAGS
@@ -307,7 +307,7 @@ runs:
             -v "${{ github.workspace }}:/code" \
             -v "${RUNNER_TEMP}:/runner-temp" \
             ${{ steps.env_flags.outputs.flags }} \
-            ghcr.io/aeliot-tm/todo-registrar:4.0.0 \
+            ghcr.io/aeliot-tm/todo-registrar:4.1.0 \
             ${{ steps.verbosity.outputs.flag }} \
             ${{ steps.config.outputs.flag }} \
             $REPORT_FLAGS

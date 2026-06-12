@@ -329,7 +329,7 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}:/code" \
             -v "${{ runner.temp }}:/runner-temp" \
-            ghcr.io/aeliot-tm/todo-registrar:4.0.0 \
+            ghcr.io/aeliot-tm/todo-registrar:4.1.0 \
             --dry-run \
             --config=/code/tests/fixtures/todo-registrar.yaml \
             --report-format=json \
