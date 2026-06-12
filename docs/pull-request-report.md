@@ -49,8 +49,13 @@ The PR body script reads the following fields:
 | `summary.todos.newIssues` | New issues created in the tracker |
 | `summary.todos.glued` | TODOs linked to an existing issue key |
 | `summary.files.analyzed` | Optional — number of scanned files (shown when nothing was registered) |
+| `issues[].key` | Issue key inserted during the run (for **Created issues**) |
+| `issues[].usageCounter` | How many TODO comments received that key |
 | `files[].path` | Source file path |
-| `files[].summary.todos.registered` | Registered TODO count per file (for the **Updated files** section) |
+| `files[].summary.todos.registered` | Registered TODO count per file (for **Updated files**) |
+
+The `issues` array is optional. When TODO Registrar includes it in the report, the PR body shows a
+**Created issues** section. See [TODO Registrar report](https://github.com/Aeliot-Tm/todo-registrar/blob/main/docs/report.md#issues).
 
 Minimal example:
 
@@ -63,6 +68,16 @@ Minimal example:
       "glued": 2
     }
   },
+  "issues": [
+    {
+      "key": "PROJ-101",
+      "usageCounter": 1
+    },
+    {
+      "key": "PROJ-102",
+      "usageCounter": 2
+    }
+  ],
   "files": [
     {
       "path": "src/Service/Foo.php",
@@ -81,108 +96,33 @@ Only the generated PR body is published on GitHub.
 
 ## Pull request body layout
 
-The generated description has four parts:
+The body is built from HTML tables and Markdown collapsible sections (`<details>`).
 
-1. **Header** — centered logo
-2. **Alert** — GitHub callout block (`[!NOTE]`, `[!TIP]`, etc.) summarizing the outcome
-3. **Processing summary** — metrics table, definitions, and optional **Updated files** details
-4. **Footer** — links to the workflow run and commit
+### Header table
 
-### Metrics
+The logo and main content share one table. The logo links to the
+[TODO Registrar Action](https://github.com/marketplace/actions/todo-registrar) on the GitHub Marketplace.
 
-| Metric | Meaning |
-|--------|---------|
-| **Registered** | TODO comments updated with an issue key in source code |
-| **New issues** | Issues newly created in the configured tracker |
-| **Glued** | TODO comments matched to an issue that already existed (no new ticket) |
+| Condition | Layout |
+|-----------|--------|
+| `registered > 0` | Logo on the left, metrics table on the right (**Registered**, **New issues**, **Glued**) |
+| `registered == 0` | Logo on the left, `[!TIP]` callout on the right |
+| Report file missing | Logo on the left, `[!WARNING]` callout on the right |
 
-Example: 7 registered TODOs with 5 new issues and 2 glued means five tracker tickets
-were created and two TODO comments were linked to issues that already existed.
+When nothing was registered, the callout includes the scanned file count when
+`summary.files.analyzed` is available.
 
-### Alert blocks
+### Collapsible sections
 
-The alert at the top depends on the report totals:
+When `registered > 0`, up to three accordions may follow the header table, in this order:
 
-| Condition | Alert | Message |
-|-----------|-------|---------|
-| `registered == 0` | `[!TIP]` | No new TODOs to register (includes scanned file count when available) |
-| `newIssues > 0` | `[!NOTE]` | Automated registration by TODO Registrar Action |
-| `registered > 0` and `newIssues == 0` and `glued > 0` | `[!IMPORTANT]` | All registered TODOs linked to existing issues; no new tickets |
-| Report file missing | `[!WARNING]` | Processing report is not available |
+1. **Created issues (N)** — when the report contains a non-empty `issues` array; table of issue keys
+   and TODO counts (`usageCounter`)
+2. **Updated files (N)** — when at least one file has `summary.todos.registered > 0`; files sorted by
+   registered TODO count (highest first)
+3. **Metric definitions** — always shown; explains **Registered**, **New issues**, and **Glued**
 
-### Updated files
-
-When at least one file has `summary.todos.registered > 0`, the body includes a collapsible **Updated files** section:
-
-- files sorted by number of registered TODOs (highest first),
-- per-file count of registered TODOs.
-
-### Footer
-
-When workflow context is available, the footer contains:
-
-- **Run by workflow #…** — link to the GitHub Actions run
-- **view changes** — link to the commit created by the action
-
-## Example PR bodies
-
-### New issues created
-
-When new tracker tickets were created:
-
-```markdown
-> [!NOTE]
-> Automated registration of TODO comments by TODO Registrar Action.
-
-## Processing summary
-
-| Registered | New issues | Glued |
-| :--------: | :--------: | :---: |
-| **7** | **5** | **2** |
-```
-
-<details>
-<summary>Updated files (2)</summary>
-
-| File | Registered TODOs |
-|------|-----------------:|
-| `src/Service/Baz.php` | 4 |
-| `src/Service/Foo.php` | 3 |
-
-</details>
-
-### Existing issues only (glued)
-
-When TODOs were updated but every issue key already existed in the tracker:
-
-```markdown
-> [!IMPORTANT]
-> All registered TODOs were linked to existing issues. No new tracker tickets were created.
-
-| Registered | New issues | Glued |
-| :--------: | :--------: | :---: |
-| **3** | **0** | **3** |
-```
-
-### Report unavailable
-
-If the report file is missing, the PR body still opens but shows a warning instead of metrics.
-This should be rare in normal action runs.
-
-```markdown
-> [!WARNING]
-> Processing report is not available.
-```
-
-## Customization
-
-The action does not expose inputs to customize the PR title or body template.
-The body is built automatically from the report.
-
-To change PR formatting, fork or pin a custom version of [`scripts/build-pr-body.sh`](../scripts/build-pr-body.sh),
-or post-process the pull request in a follow-up workflow step after the action runs.
-
-The logo URL passed to the script defaults to the action repository logo; a third script argument overrides it.
+> **Example of PR body:** [pr-body.expected.md](../tests/fixtures/pr-body.expected.md)
 
 ## Related documentation
 
