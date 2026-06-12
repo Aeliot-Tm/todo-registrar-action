@@ -89,7 +89,7 @@ This step is omitted entirely when `check_opened: false`.
 **Run TODO Registrar** starts the Docker container:
 
 ```text
-ghcr.io/aeliot-tm/todo-registrar:4.0.0
+ghcr.io/aeliot-tm/todo-registrar:4.1.0
 ```
 
 The workspace is mounted at `/code`. The container:
