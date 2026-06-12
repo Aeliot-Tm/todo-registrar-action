@@ -99,6 +99,9 @@ The workspace is mounted at `/code`. The container:
 - writes issue keys back into source files,
 - writes a JSON processing report to `${RUNNER_TEMP}/todo-registrar-report.json`.
 
+The report is exposed as the `summary_report` output for use in later workflow steps.
+See [Using outputs](outputs.md#processing-report).
+
 ### 6. Apply Git changes
 
 If processing was not skipped:
