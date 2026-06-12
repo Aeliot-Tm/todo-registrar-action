@@ -17,10 +17,6 @@
 > [!NOTE]
 > Automated registration of TODO comments by [TODO Registrar Action](https://github.com/Aeliot-Tm/todo-registrar-action).
 
-- **Registered** — TODO comments that received an issue key
-- **New issues** — new issues created in the tracker
-- **Glued** — TODOs that reused an existing issue key
-
 <details>
 <summary><strong>Updated files</strong> (2)</summary>
 
@@ -28,5 +24,14 @@
 |------|-----------------:|
 | `src/Service/Baz.php` | 4 |
 | `src/Service/Foo.php` | 3 |
+
+</details>
+
+<details>
+<summary><strong>Metric definitions</strong></summary>
+
+- **Registered** — TODO comments that received an issue key
+- **New issues** — new issues created in the tracker
+- **Glued** — TODOs that reused an existing issue key
 
 </details>

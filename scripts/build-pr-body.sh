@@ -83,6 +83,17 @@ write_missing_report_header() {
   echo '</table>'
 }
 
+write_metric_legend() {
+  echo "<details>"
+  echo "<summary><strong>Metric definitions</strong></summary>"
+  echo ""
+  echo "- **Registered** — TODO comments that received an issue key"
+  echo "- **New issues** — new issues created in the tracker"
+  echo "- **Glued** — TODOs that reused an existing issue key"
+  echo ""
+  echo "</details>"
+}
+
 write_alert() {
   local registered="$1"
   local new_issues="$2"
@@ -112,10 +123,6 @@ write_alert() {
       write_metrics_header "$REGISTERED" "$NEW_ISSUES" "$GLUED"
       echo ""
       write_alert "$REGISTERED" "$NEW_ISSUES" "$GLUED"
-      echo ""
-      echo "- **Registered** — TODO comments that received an issue key"
-      echo "- **New issues** — new issues created in the tracker"
-      echo "- **Glued** — TODOs that reused an existing issue key"
 
       if [[ "$UPDATED_FILES" -gt 0 ]]; then
         echo ""
@@ -128,6 +135,9 @@ write_alert() {
         echo ""
         echo "</details>"
       fi
+
+      echo ""
+      write_metric_legend
     fi
   else
     write_missing_report_header

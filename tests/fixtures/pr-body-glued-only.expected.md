@@ -17,15 +17,20 @@
 > [!IMPORTANT]
 > All registered TODOs were linked to existing issues. No new tracker tickets were created.
 
-- **Registered** — TODO comments that received an issue key
-- **New issues** — new issues created in the tracker
-- **Glued** — TODOs that reused an existing issue key
-
 <details>
 <summary><strong>Updated files</strong> (1)</summary>
 
 | File | Registered TODOs |
 |------|-----------------:|
 | `src/Service/Foo.php` | 3 |
+
+</details>
+
+<details>
+<summary><strong>Metric definitions</strong></summary>
+
+- **Registered** — TODO comments that received an issue key
+- **New issues** — new issues created in the tracker
+- **Glued** — TODOs that reused an existing issue key
 
 </details>
