@@ -30,5 +30,3 @@
 | `src/Service/Foo.php` | 3 |
 
 </details>
-
-> Run by [workflow #12345678](https://github.com/owner/repo/actions/runs/12345678) · [view changes](https://github.com/owner/repo/commit/abcdef1234567890abcdef1234567890abcdef12)

@@ -100,25 +100,6 @@ write_alert() {
   fi
 }
 
-write_footer() {
-  local server_url="${GITHUB_SERVER_URL:-https://github.com}"
-  local repository="${GITHUB_REPOSITORY:-}"
-  local run_id="${GITHUB_RUN_ID:-}"
-  local commit_sha="${COMMIT_SHA:-}"
-
-  [[ -n "$run_id" && -n "$repository" ]] || return 0
-
-  local workflow_url="${server_url}/${repository}/actions/runs/${run_id}"
-  local footer="> Run by [workflow #${run_id}](${workflow_url})"
-
-  if [[ -n "$commit_sha" ]]; then
-    footer+=" · [view changes](${server_url}/${repository}/commit/${commit_sha})"
-  fi
-
-  echo ""
-  echo "$footer"
-}
-
 {
   if [[ -f "$REPORT_PATH" ]]; then
     read -r REGISTERED NEW_ISSUES GLUED <<< "$(jq -r '.summary.todos | "\(.registered) \(.newIssues) \(.glued)"' "$REPORT_PATH")"
@@ -148,10 +129,7 @@ write_footer() {
         echo "</details>"
       fi
     fi
-
-    write_footer
   else
     write_missing_report_header
-    write_footer
   fi
 } > "$PR_BODY_PATH"
