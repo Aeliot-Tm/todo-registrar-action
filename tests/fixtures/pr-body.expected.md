@@ -18,6 +18,19 @@
 > Automated registration of TODO comments by [TODO Registrar Action](https://github.com/Aeliot-Tm/todo-registrar-action).
 
 <details>
+<summary><strong>Created issues</strong> (5)</summary>
+
+| Issue | TODOs |
+|-------|------:|
+| `TEST-101` | 1 |
+| `TEST-102` | 2 |
+| `TEST-103` | 1 |
+| `TEST-104` | 2 |
+| `TEST-105` | 1 |
+
+</details>
+
+<details>
 <summary><strong>Updated files</strong> (2)</summary>
 
 | File | Registered TODOs |

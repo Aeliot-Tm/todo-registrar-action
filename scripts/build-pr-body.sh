@@ -83,6 +83,23 @@ write_missing_report_header() {
   echo '</table>'
 }
 
+write_created_issues() {
+  local report_path="$1"
+  local created_issues_count
+
+  created_issues_count="$(jq '[.issues[]?] | length' "$report_path")"
+  [[ "$created_issues_count" -gt 0 ]] || return 0
+
+  echo "<details>"
+  echo "<summary><strong>Created issues</strong> (${created_issues_count})</summary>"
+  echo ""
+  echo "| Issue | TODOs |"
+  echo "|-------|------:|"
+  jq -r '.issues[]? | "| `\(.key)` | \(.usageCounter) |"' "$report_path"
+  echo ""
+  echo "</details>"
+}
+
 write_metric_legend() {
   echo "<details>"
   echo "<summary><strong>Metric definitions</strong></summary>"
@@ -123,6 +140,12 @@ write_alert() {
       write_metrics_header "$REGISTERED" "$NEW_ISSUES" "$GLUED"
       echo ""
       write_alert "$REGISTERED" "$NEW_ISSUES" "$GLUED"
+
+      CREATED_ISSUES_COUNT="$(jq '[.issues[]?] | length' "$REPORT_PATH")"
+      if [[ "$CREATED_ISSUES_COUNT" -gt 0 ]]; then
+        echo ""
+        write_created_issues "$REPORT_PATH"
+      fi
 
       if [[ "$UPDATED_FILES" -gt 0 ]]; then
         echo ""
