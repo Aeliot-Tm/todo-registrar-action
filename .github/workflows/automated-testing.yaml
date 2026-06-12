@@ -315,6 +315,39 @@ jobs:
             exit 1
           fi
 
+  test-summary-report-output:
+    name: "Test summary_report output"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run action
+        id: action
+        uses: ./
+        with:
+          check_opened: 'false'
+          config: |
+            paths:
+              in: /code/.github
+            registrar:
+              type: GitHub
+              options:
+                service:
+                  personalAccessToken: dummy
+                  owner: test
+                  repository: test
+
+      - name: Verify summary_report output
+        env:
+          SUMMARY_REPORT: ${{ steps.action.outputs.summary_report }}
+        run: |
+          if [[ -z "$SUMMARY_REPORT" ]]; then
+            echo "✗ FAIL: summary_report is empty"
+            exit 1
+          fi
+          echo "$SUMMARY_REPORT" | jq -e '.summary.todos | has("registered") and has("newIssues") and has("glued")'
+          echo "✓ PASS: summary_report contains expected metrics"
+
   test-report-pr-body:
     name: "Test report and PR body formation"
     runs-on: ubuntu-latest

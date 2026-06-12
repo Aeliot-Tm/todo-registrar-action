@@ -12,6 +12,7 @@ All outputs are **strings**. In expressions and shell conditions, compare them t
 | `target_branch` | string | Always — target branch for a pull request |
 | `skipped` | `'true'` / `'false'` | Always — `true` when processing was skipped (open PR, branch behind remote, etc.) |
 | `has_changes` | `'true'` / `'false'` | Always — `true` when TODO Registrar changes were committed and pushed |
+| `summary_report` | JSON string | When processing ran — TODO Registrar processing report; empty when skipped |
 
 Give the action step an `id` to read its outputs:
 
@@ -113,6 +114,15 @@ Branch outputs are useful for logging, notifications, or custom automation:
 When `new_branch` equals `target_branch`, the action commits to the current branch and does not open
 a pull request (even if `has_changes` is `true`).
 
+## Processing report
+
+When TODO Registrar runs, the action exposes the JSON processing report as `summary_report`.
+The same report is used to build the pull request body when a PR is created.
+
+`summary_report` is empty when processing was skipped (`skipped: true`).
+
+See [Pull request body and processing report](pull-request-report.md) for the report structure.
+
 ## Pass outputs to another job
 
 Job outputs must be declared explicitly. Example: run registrar in one job and notify in another:
@@ -157,6 +167,8 @@ Write a short summary to the Actions run page:
 
 - name: Job summary
   if: always()
+  env:
+    SUMMARY_REPORT: ${{ steps.registrar.outputs.summary_report }}
   run: |
     {
       echo "### TODO Registrar"
@@ -167,6 +179,10 @@ Write a short summary to the Actions run page:
       echo "| has_changes | \`${{ steps.registrar.outputs.has_changes }}\` |"
       echo "| new_branch | \`${{ steps.registrar.outputs.new_branch }}\` |"
       echo "| target_branch | \`${{ steps.registrar.outputs.target_branch }}\` |"
+      if [[ -n "$SUMMARY_REPORT" ]]; then
+        REGISTERED=$(echo "$SUMMARY_REPORT" | jq -r '.summary.todos.registered')
+        echo "| registered TODOs | \`$REGISTERED\` |"
+      fi
     } >> "$GITHUB_STEP_SUMMARY"
 ```
 

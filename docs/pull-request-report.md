@@ -92,7 +92,8 @@ Minimal example:
 ```
 
 The report stays in the runner temp directory and is **not** committed to the repository.
-Only the generated PR body is published on GitHub.
+The same JSON is available as the action output `summary_report` when processing runs.
+See [Using outputs](outputs.md#processing-report). Only the generated PR body is published on GitHub.
 
 ## Pull request body layout
 

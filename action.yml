@@ -63,6 +63,9 @@ outputs:
   has_changes:
     description: 'Whether there were changes to commit (true/false)'
     value: ${{ steps.commit.outputs.has_changes || 'false' }}
+  summary_report:
+    description: 'JSON processing report from TODO Registrar (empty when skipped)'
+    value: ${{ steps.report.outputs.summary_report || '' }}
 
 runs:
   using: 'composite'
@@ -311,6 +314,18 @@ runs:
             ${{ steps.verbosity.outputs.flag }} \
             ${{ steps.config.outputs.flag }} \
             $REPORT_FLAGS
+        fi
+
+    - name: Export summary report
+      id: report
+      if: steps.check_prs.outputs.skip_processing != 'true'
+      shell: bash
+      run: |
+        REPORT_PATH="${RUNNER_TEMP}/todo-registrar-report.json"
+        if [[ -f "$REPORT_PATH" ]]; then
+          echo "summary_report=$(cat $REPORT_PATH)" >> "$GITHUB_OUTPUT"
+        else
+          echo "summary_report=" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Checkout new branch
