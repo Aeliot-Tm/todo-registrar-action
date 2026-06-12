@@ -1,6 +1,6 @@
 <div align="center">
 
-![TODO Registrar](https://raw.githubusercontent.com/Aeliot-Tm/todo-registrar-action/main/docs/logo.svg)
+[![TODO Registrar](https://raw.githubusercontent.com/Aeliot-Tm/todo-registrar-action/main/docs/logo-in-comment.svg)](https://github.com/marketplace/actions/todo-registrar)
 
 </div>
 

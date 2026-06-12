@@ -3,7 +3,8 @@ set -euo pipefail
 
 REPORT_PATH="${1:?report path required}"
 PR_BODY_PATH="${2:?PR body output path required}"
-LOGO_URL="${3:-https://raw.githubusercontent.com/Aeliot-Tm/todo-registrar-action/main/docs/logo.svg}"
+LOGO_URL="${3:-https://raw.githubusercontent.com/Aeliot-Tm/todo-registrar-action/main/docs/logo-in-comment.svg}"
+ACTION_MARKETPLACE_URL="https://github.com/marketplace/actions/todo-registrar"
 ACTION_LINK="[TODO Registrar Action](https://github.com/Aeliot-Tm/todo-registrar-action)"
 
 pluralize() {
@@ -65,7 +66,7 @@ write_footer() {
 {
   echo '<div align="center">'
   echo ""
-  echo "![TODO Registrar](${LOGO_URL})"
+  echo "[![TODO Registrar](${LOGO_URL})](${ACTION_MARKETPLACE_URL})"
   echo ""
   echo '</div>'
   echo ""
